@@ -1,39 +1,34 @@
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, confusion_matrix, log_loss
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import *
+from sklearn.metrics import f1_score, confusion_matrix, log_loss, precision_score, classification_report
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn import preprocessing
 from sklearn.preprocessing import scale
 import matplotlib.pyplot as plt
 from warnings import simplefilter
 import numpy as np
-from imblearn.over_sampling import SMOTE
-
-from CustomLogisticRegression import CustomLogisticRegression
+from sklearn.utils import resample
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
-""" Функция для создания модели и обучения, выводит выводит название модели и оценку """
-
 
 def fit_predict_eval(model, features_train, target_train):
+    """ Обучение модели """
     model.fit(features_train, target_train)
     return model
 
 
-""" Загрузка данных """
-
-
 def load_data(path_of_file='Data/dataNew.csv'):
+    """ Загрузка данных """
     data_csv = pd.read_csv(path_of_file, encoding='utf-8')
     data_csv.drop(columns='Unnamed: 0', inplace=True)
     return data_csv
 
 
-""" Оценка """
-
-
 def score_model(model, features_train, features_test, target_train, target_test, data_raw, numb, min_max, X):
+    """ Оценка
+    Метод не используется """
     # Оценка
     y_pred = model.predict(features_test)
     # precision = precision_score(target_test, y_pred, average='macro')
@@ -100,18 +95,9 @@ def score_model(model, features_train, features_test, target_train, target_test,
     return return_score
 
 
-""" Преобразование категориального признака - ГОРОД"""
-
-
 def data_city(data_raw):
+    """ Преобразование категориального признака - city"""
     cities = data_raw.city.unique()
-    city = {
-
-    }
-    i = 1
-    for el in cities:
-        city[el] = i
-        i += 1
     for el in cities:
         data_raw.insert(len(data_raw.columns), el, 0)
     for el in cities:
@@ -124,12 +110,16 @@ def data_city(data_raw):
     return data_raw
 
 
-""" Преобразование данных """
-
-
 def change_age(data_raw):
-    import matplotlib.pyplot as plt
+    """ Разбиваем весь возраст на группы бинарных
+    Всего получается 4 группы:
+    1. [0,21]
+    2. (21, 25]
+    3. (25,31)
+    4. [31, +∞]
+    """
     group_age = ['0_21', '21_25', '25_31', '31_']
+
     for el in group_age:
         data_raw.insert(len(data_raw.columns), el, 0)
 
@@ -140,6 +130,7 @@ def change_age(data_raw):
     data_raw.loc[(data_raw.age > 25) & (data_raw.age < 31), ('age', group_age[2])] = 1
 
     data_raw.loc[data_raw.age >= 31, ('age', group_age[3])] = 1
+
     data_raw.drop(
         ['age'],
         inplace=True,
@@ -150,32 +141,30 @@ def change_age(data_raw):
 
 
 def data_processing(data_raw, first):
+    """ Обработка данных """
     data_raw.drop(
         ['gender'],
         inplace=True,
         axis=1
     )
+    a = data_raw.loc[data_raw['rating'] > first]
     data_raw = data_city(data_raw)
 
     # Замена рейтинга 0 и 1
-    a = data_raw.loc[data_raw['rating'] >= 0.1]
     data_raw.loc[(data_raw.rating <= first), 'rating'] = 0
     data_raw.loc[(data_raw.rating > first), 'rating'] = 1
 
     # Сохраним кандидатов с 1 рейтинга
-
-    a.to_csv('Data/score_one_1.csv')
+    a.to_csv('Data/кандидаты_1.csv')
     # Категориальные признаки в столбцы
     data_raw = data_to_category(data_raw)
-    data_raw = change_skill_set(data_raw.skill_set, data_raw)
+    data_raw = change_skill_set(data_raw)
     data_raw = change_age(data_raw)
     return data_raw
 
 
-""" Категориальные признаки """
-
-
 def data_to_category(data_raw):
+    """ Преобразование категориальных признаков specialty и education_level """
     # work_experience = [
     #     'candidate',
     #     'master',
@@ -215,13 +204,11 @@ def data_to_category(data_raw):
     return data_raw
 
 
-""" Преобразовываем skill_set """
-
-
-def change_skill_set(skill_set, data_raw):
+def change_skill_set(data_raw):
+    """ Преобразовываем skill_set """
     already_columns = list(data_raw.columns)
     all_skills = []
-    for el in skill_set:
+    for el in data_raw.skill_set:
         if type(el) == float:
             continue
         skill = el.split(',')
@@ -235,6 +222,7 @@ def change_skill_set(skill_set, data_raw):
 
     for el in all_skills:
         data_raw.insert(len(data_raw.columns), el, 0)
+
     error_list = [None, '']
     for i in range(len(data_raw.skill_set)):
         if type(data_raw.loc[i, 'skill_set']) == float:
@@ -245,8 +233,6 @@ def change_skill_set(skill_set, data_raw):
             el = el.strip()
             el = el.lower()
             data_raw.loc[i, el] = 1
-    pf = pd.DataFrame(data_raw)
-    pf.to_csv('Data/mylist.csv')
     data_raw.drop(
         ['skill_set'],
         inplace=True,
@@ -255,19 +241,15 @@ def change_skill_set(skill_set, data_raw):
     return data_raw
 
 
-""" Стандартизация """
-
-
 def standardization(data_raw):
+    """ Стандартизация """
     X = data_raw.drop(['rating'], axis=1)
     X_scaled = scale(X)
     return X_scaled
 
 
-""" Нормализация """
-
-
 def min_max_scaler(data_raw):
+    """ Нормализация через минимальный и максимальный """
     scaler = preprocessing.MinMaxScaler()
     names = data_raw.columns
     d = scaler.fit_transform(data_raw)
@@ -275,10 +257,8 @@ def min_max_scaler(data_raw):
     return scaled_df
 
 
-""" Дисперсия """
-
-
 def variance(data_raw):
+    """ Нормализация через дисперсию """
     scaler = preprocessing.StandardScaler()
     names = data_raw.columns
     scaler.fit(data_raw)
@@ -287,10 +267,10 @@ def variance(data_raw):
     return scaled_df
 
 
-""" Сохранить коэффициенты для модели """
-
-
 def save_score(data_raw, model):
+    """ Сохранить коэффициенты для модели
+    Метод не используется
+    """
     columns = data_raw.columns
     new_columns = []
     for el in columns:
@@ -300,98 +280,45 @@ def save_score(data_raw, model):
     # for el in model.coef_:
     #     array.append(el[0])
     # score_result = pd.DataFrame(array, index=new_columns, columns=['score'])
-    score_result = pd.DataFrame(model.coef_[0], index=new_columns, columns=['score'])
+    score_result = pd.DataFrame(model.best_estimator_.coef_[0], index=new_columns, columns=['score'])
     score_result.sort_values(by='score', ascending=False, inplace=True)
     score_result.to_csv('Data/score.csv')
 
 
-"""Результат для модели"""
-
-
-def get_result(model, X, Y, data_raw, X_test, Y_test):
-    i = 0
-    score_new = []
+def get_result(model, data_raw, X_test, Y_test):
+    """Результат для модели"""
     columns = data_raw.columns
-    new_columns = []
-    for el in columns:
-        if el != 'rating':
-            new_columns.append(el)
+    columns = columns.values.tolist()
+    columns.remove('rating')
+    y_pred = model.predict(X_test)
+    # print(precision_score(Y, y_pred, average='macro'))
+    print(confusion_matrix(Y_test, y_pred))
+    # старая версия подсчета
+    model.densify()
 
-    # for el in model.coef_[0]:
-    #     if el > 0:
-    #         new_columns.append(columns[i])
-    #         score_new.append(el)
-    #         # score[columns[i]] = [el, ]
-    #     i += 1
-    # старая
-    # score_result = pd.DataFrame(model.coef_[0], index=new_columns, columns=['score'])
-    # score_result.sort_values(by='score', ascending=False, inplace=True)
-    # score_result.to_csv('Data/score.csv')
-    # y_pred = model.predict(X_test)
-    # all_0 = 0
-    # all_1 = 0
-    # true_1 = 0
-    # true_0 = 0
-    # successful_interviews = 0
-    # print(log_loss(Y_test, y_pred))
-    # for x, y in zip(y_pred, Y_test):
-    #     if x == y:
-    #         if y == 0:
-    #             all_0 += 1
-    #             true_0 += 1
-    #         else:
-    #             successful_interviews += 1
-    #             all_1 += 1
-    #             true_1 += 1
-    #     elif y == 1:
-    #         all_1 += 1
-    #     else:
-    #         all_0 += 1
-    # if successful_interviews != 0:
-    #     result_end = {
-    #         'score': (len(y_pred) * 25000 / successful_interviews),
-    #         'percent_0': true_0 / all_0,
-    #         'percent_1': true_1 / all_1,
-    #         'all_0': all_0,
-    #         'all_1': all_1,
-    #         'true_0': true_0,
-    #         'true_1': true_1
-    #     }
-    # else:
-    #     result_end = {
-    #         'score': 0,
-    #         'percent_0': true_0 / all_0,
-    #         'percent_1': true_1 / all_1,
-    #         'all_0': all_0,
-    #         'all_1': all_1,
-    #         'true_0': true_0,
-    #         'true_1': true_1
-    #     }
-    # Новая старая
-    save_score(data_raw, model)
-    result = model.predict(X)
-    i = 0
-    res_end = 0
-    all_0 = 0
-    all_1 = 0
-    true_1 = 0
-    true_0 = 0
-    for lio in result:
-        if lio == Y[i]:
-            if lio == 1:
-                res_end += 1
-                true_1 += 1
-            else:
+    coef = model.coef_.reshape(-1, 1)
+    score_result = pd.DataFrame(coef, index=columns, columns=['score'])
+
+    score_result.sort_values(by='score', ascending=False, inplace=True)
+    score_result.to_csv('Data/score.csv')
+    all_0, all_1, true_1, true_1, true_0, successful_interviews = 0, 0, 0, 0, 0, 0
+    print(log_loss(Y_test, y_pred))
+    for x, y in zip(y_pred, Y_test):
+        if x == y:
+            if y == 0:
+                all_0 += 1
                 true_0 += 1
-        i += 1
-    for o in Y:
-        if o == 0:
-            all_0 += 1
-        else:
+            else:
+                successful_interviews += 1
+                all_1 += 1
+                true_1 += 1
+        elif y == 1:
             all_1 += 1
-    if res_end != 0:
+        else:
+            all_0 += 1
+    if successful_interviews != 0:
         result_end = {
-            'score': (len(result) * 25000 / res_end),
+            'score': (len(y_pred) * 25000 / successful_interviews),
             'percent_0': true_0 / all_0,
             'percent_1': true_1 / all_1,
             'all_0': all_0,
@@ -409,90 +336,104 @@ def get_result(model, X, Y, data_raw, X_test, Y_test):
             'true_0': true_0,
             'true_1': true_1
         }
+    # Новая старая
+    # save_score(data_raw, model)
+    # result = model.predict(X)
+    # i = 0
+    # res_end = 0
+    # all_0 = 0
+    # all_1 = 0
+    # true_1 = 0
+    # true_0 = 0
+    # for lio in result:
+    #     if lio == Y[i]:
+    #         if lio == 1:
+    #             res_end += 1
+    #             true_1 += 1
+    #         else:
+    #             true_0 += 1
+    #     i += 1
+    # for o in Y:
+    #     if o == 0:
+    #         all_0 += 1
+    #     else:
+    #         all_1 += 1
+    # if res_end != 0:
+    #     result_end = {
+    #         'score': (len(result) * 25000 / res_end),
+    #         'percent_0': true_0 / all_0,
+    #         'percent_1': true_1 / all_1,
+    #         'all_0': all_0,
+    #         'all_1': all_1,
+    #         'true_0': true_0,
+    #         'true_1': true_1
+    #     }
+    # else:
+    #     result_end = {
+    #         'score': 0,
+    #         'percent_0': true_0 / all_0,
+    #         'percent_1': true_1 / all_1,
+    #         'all_0': all_0,
+    #         'all_1': all_1,
+    #         'true_0': true_0,
+    #         'true_1': true_1
+    #     }
 
     return result_end
 
 
-""" Создание модели (подготовка) """
-
-
-def model_create(X, Y, data_raw, numb, model, min_max=True):
+def model_create(X, Y, data_raw, model):
+    """ Создание модели (подготовка) """
     lab = preprocessing.LabelEncoder()
     lab.fit(Y)
     y_new = lab.fit_transform(Y)
-    #
-    # from sklearn.utils import resample
-    # x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
-    #
-    # X_ = np.concatenate((X[y_new == 0], x_resampled))
-    # Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, y_new, test_size=0.3, random_state=27)
+    x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
+
+    X_ = np.concatenate((X[y_new == 0], x_resampled))
+    Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X_, Y_, test_size=0.3, random_state=27)
     # smote = SMOTE(k_neighbors=3)
     # print(X_train.shape)
     # print(len(Y_train))
     # X_, Y_ = smote.fit_resample(X_train, Y_train)
 
-    # print(X_.shape)
-    # print(Y_.shape)
-    y_1 = 0
-    y_0 = 0
-    for el in Y_train:
-        if el == 1:
-            y_1 += 1
-        else:
-            y_0 += 1
-    # print(y_0)
-    # print(y_1)
     model_fit = fit_predict_eval(
         model=model,
         features_train=X_train,
         target_train=Y_train,
     )
+    model.predict(X)
+
     result_end = get_result(
         model=model_fit,
         X_test=X_test,
         Y_test=Y_test,
-        X=X,
-        Y=Y,
         data_raw=data_raw
     )
-
-    # score_of_model = score_model(
-    #     model=model_fit,
-    #     features_train=X_train,
-    #     target_train=Y_train,
-    #     features_test=X_test,
-    #     target_test=Y_test,
-    #     data_raw=data_raw,
-    #     numb=numb,
-    #     min_max=min_max,
-    #     X=X
-    # )
 
     return result_end
 
 
-""" Обработка данных """
-
-
 def main():
-    max_score = {
-        'f1': 0,
-        'matrix': None,
-        'el': 0.0
-    }
+    """ Главная функция """
     best_score = 1000000000
     res = []
     ni = [0.7]
     # np.arange(0.1, 0.9, 0.1)
-    for e in np.arange(0.1, 0.9, 0.1):
+    for e in ni:
         print('Загрузка...')
         data = load_data()
-        data = data_processing(data, e)
+        data = data_processing(
+            data_raw=data,
+            first=e
+        )
         Y_raw = data.rating
-        # Y = data.drop(['rating'], axis=1)
+
+        # Стандартизация
         # X = standardization(data)
+        # X_raw = scale(X_raw)
 
         # Дисперсия
         # data = variance(data)
@@ -501,23 +442,56 @@ def main():
         data = min_max_scaler(data)
 
         X_raw = data.loc[:, data.columns != 'rating']
-        model = LogisticRegression(fit_intercept=False, multi_class='ovr')
+
+        param = {
+            'fit_intercept': [True, False],
+            'dual': [True, False],
+            'multi_class': ['auto', 'ovr', 'multinomial'],
+            'penalty': ['l1', 'l2', 'elasticnet', 'none'],
+            'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
+            'max_iter': [100, 500, 1000]
+        }
+        # model = GridSearchCV(LogisticRegression(), param_grid=param)
+        # model = LogisticRegression(C=0.001, penalty='none')
+        # model = LogisticRegression(C=1)
+        # model = LogisticRegression(fit_intercept=False, multi_class='ovr')
+        model = LogisticRegression()
         print('Данные обработались, начинается обучение')
         # model = CustomLogisticRegression(fit_intercept=False, l_rate=0.01, n_epoch=3000)
-        score = model_create(X_raw, Y_raw, data, e, model=model,
-                             min_max=False)
+        score = model_create(
+            X=X_raw,
+            Y=Y_raw,
+            data_raw=data,
+            model=model)
+        # Проверка на наших данных
+        y_pred = model.predict(X_raw)
+        print(confusion_matrix(Y_raw, y_pred))
         print('Обучение закончилось, сохранение результатов')
         if score['score'] < best_score and score['score'] != 0:
             best_score = score['score']
         score['el'] = e
         res.append(score)
     print('best_score: {}\n'.format(best_score))
+    df = pd.DataFrame(columns=['money', 'score_1', 'score_0', 'true_1', 'true_0', 'all_0', 'all_1', 'el'])
     for b in res:
+        df.loc[len(df.index)] = [b['score'], round(b['percent_1'], 2), round(b['percent_0'], 2), b['true_1'],
+                                 b['true_0'], b['all_0'], b['all_1'], b['el']]
+        # new_df = pd.DataFrame({
+        #     'money': b['score'],
+        #     'score_1': round(b['percent_1'], 2),
+        #     'score_0': round(b['percent_0'], 2),
+        #     'true_1': b['true_1'],
+        #     'true_0': b['true_0'],
+        #     'all_0': b['all_0'],
+        #     'all_1': b['all_1'],
+        #     'el': b['el']}
+        # )
         print(round(b['score']))
         print('{} - {}/{}'.format(round(b['percent_0'], 2), b['true_0'], b['all_0']))
         print('{} - {}/{}'.format(round(b['percent_1'], 2), b['true_1'], b['all_1']))
         print('el: {}'.format(b['el']))
         print()
+    df.to_csv('End_score.csv')
 
 
 if __name__ == "__main__":
