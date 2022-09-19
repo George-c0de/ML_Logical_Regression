@@ -442,11 +442,11 @@ def model_create(X, Y, data_raw, model):
     lab.fit(Y)
     y_new = lab.fit_transform(Y)
 
-    # x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
-    #
-    # X_ = np.concatenate((X[y_new == 0], x_resampled))
-    # Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
-    X_train, X_test, Y_train, Y_test = train_test_split(X, y_new, test_size=0.3, random_state=27)
+    x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
+
+    X_ = np.concatenate((X[y_new == 0], x_resampled))
+    Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
+    X_train, X_test, Y_train, Y_test = train_test_split(X_, Y_, test_size=0.3, random_state=27)
     # smote = SMOTE(k_neighbors=3)
     # print(X_train.shape)
     # print(len(Y_train))
