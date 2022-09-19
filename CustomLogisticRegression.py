@@ -23,13 +23,8 @@ class CustomLogisticRegression:
 
     def fit_mse(self, X_train, y_train):
         n_row = np.shape(X_train)[0]
-        if self.fit_intercept:
-            try:
-                X_train.insert(0, 'ones', np.ones((n_row, 1)), False)  # allow_duplicates = False
-            except ValueError:
-                pass
         n_coefficient = np.shape(X_train)[1]
-        self.coef_ = np.zeros((n_coefficient, 1))  # initialized weights and/or bias 1 x (n_coefficient)
+        self.coef_ = np.zeros((n_coefficient, 1))
         X_train = np.array(X_train)  # (n_row) x (n_feature)
         y_train = np.array([y_train])  # (n_row) x (n_target)
 
@@ -48,11 +43,6 @@ class CustomLogisticRegression:
     def predict(self, X_test, cut_off=0.5):
         n_row = np.shape(X_test)[0]
         predictions = [0 for _ in range(n_row)]
-        if self.fit_intercept:
-            try:
-                X_test.insert(0, 'ones', np.ones((n_row, 1)), False)  # allow_duplicates = False
-            except ValueError:
-                pass
         X_test = np.array(X_test)
         for i, row in enumerate(X_test):
             y_hat = self.predict_proba(row, self.coef_)
@@ -62,11 +52,6 @@ class CustomLogisticRegression:
 
     def fit_log_loss(self, X_train, y_train):
         n_row = np.shape(X_train)[0]
-        if self.fit_intercept:
-            try:
-                X_train.insert(0, 'ones', np.ones((n_row, 1)), False)  # allow_duplicates = False
-            except ValueError:
-                pass
         n_coefficient = np.shape(X_train)[1]
         self.coef_ = np.zeros((n_coefficient, 1))  # initialized weights and/or bias 1 x (n_coefficient)
         X_train = np.array(X_train)  # (n_row) x (n_feature)

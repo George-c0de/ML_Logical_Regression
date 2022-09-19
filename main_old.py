@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import *
 from sklearn.metrics import f1_score, confusion_matrix, log_loss, precision_score, classification_report
@@ -9,13 +10,18 @@ import matplotlib.pyplot as plt
 from warnings import simplefilter
 import numpy as np
 from sklearn.utils import resample
+from sklearn.svm import SVC, SVR
+from CustomLogisticRegression import CustomLogisticRegression
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 
 def fit_predict_eval(model, features_train, target_train):
     """ Обучение модели """
-    model.fit(features_train, target_train)
+    model.fit_mse(features_train, target_train)
+    # model.fit(features_train, target_train)
+
+    # model = model.best_estimator_
     return model
 
 
@@ -110,26 +116,39 @@ def data_city(data_raw):
     return data_raw
 
 
-def change_age(data_raw):
+def change_age(data_raw, group=2):
     """ Разбиваем весь возраст на группы бинарных
+    По умолчанию групп 1
     Всего получается 4 группы:
     1. [0,21]
     2. (21, 25]
     3. (25,31)
     4. [31, +∞]
     """
-    group_age = ['0_21', '21_25', '25_31', '31_']
+    a = pd.qcut(data_raw['age'], q=group)
+    values = a.unique()
+    # group_age = ['0_21', '21_25', '25_31', '31_']
+    group_age = []
+    for el in values:
+        name = str(el.left) + '_' + str(el.right)
+        group_age.append(name)
 
     for el in group_age:
         data_raw.insert(len(data_raw.columns), el, 0)
 
-    data_raw.loc[(data_raw.age <= 25) & (data_raw.age > 21), ('age', group_age[1])] = 1
-
-    data_raw.loc[data_raw.age <= 21, ('age', group_age[0])] = 1
-
-    data_raw.loc[(data_raw.age > 25) & (data_raw.age < 31), ('age', group_age[2])] = 1
-
-    data_raw.loc[data_raw.age >= 31, ('age', group_age[3])] = 1
+    for el, i in zip(values, range(len(values))):
+        if el.closed == 'right':
+            data_raw.loc[(data_raw.age > el.left) & (data_raw.age <= el.right), ('age', group_age[i])] = 1
+        elif el.closed == 'left':
+            data_raw.loc[(data_raw.age >= el.left) & (data_raw.age < el.right), ('age', group_age[i])] = 1
+        elif el.closed == 'both':
+            data_raw.loc[(data_raw.age >= el.left) & (data_raw.age <= el.right), ('age', group_age[i])] = 1
+        else:
+            data_raw.loc[(data_raw.age > el.left) & (data_raw.age < el.right), ('age', group_age[i])] = 1
+    # data_raw.loc[data_raw.age <= 21, ('age', group_age[0])] = 1
+    # data_raw.loc[(data_raw.age <= 25) & (data_raw.age > 21), ('age', group_age[1])] = 1
+    # data_raw.loc[(data_raw.age > 25) & (data_raw.age < 31), ('age', group_age[2])] = 1
+    # data_raw.loc[data_raw.age >= 31, ('age', group_age[3])] = 1
 
     data_raw.drop(
         ['age'],
@@ -140,64 +159,97 @@ def change_age(data_raw):
     return data_raw
 
 
-def data_processing(data_raw, first):
-    """ Обработка данных """
+def change_total_experience(data_raw, group=1):
+    a = pd.qcut(data_raw['total_experience'], q=group)
+    values = a.unique()
+    # group_age = ['0_21', '21_25', '25_31', '31_']
+    group_age = []
+    for el in values:
+        name = str(el.left) + '_' + str(el.right)
+        group_age.append(name)
+
+    for el in group_age:
+        data_raw.insert(len(data_raw.columns), el, 0)
+
+    for el, i in zip(values, range(len(values))):
+        if el.closed == 'right':
+            data_raw.loc[(data_raw.total_experience > el.left) & (data_raw.total_experience <= el.right), (
+                'total_experience', group_age[i])] = 1
+        elif el.closed == 'left':
+            data_raw.loc[(data_raw.total_experience >= el.left) & (data_raw.total_experience < el.right), (
+                'total_experience', group_age[i])] = 1
+        elif el.closed == 'both':
+            data_raw.loc[(data_raw.total_experience >= el.left) & (data_raw.total_experience <= el.right), (
+                'total_experience', group_age[i])] = 1
+        else:
+            data_raw.loc[(data_raw.total_experience > el.left) & (data_raw.total_experience < el.right), (
+                'total_experience', group_age[i])] = 1
+    # data_raw.loc[data_raw.age <= 21, ('age', group_age[0])] = 1
+    # data_raw.loc[(data_raw.age <= 25) & (data_raw.age > 21), ('age', group_age[1])] = 1
+    # data_raw.loc[(data_raw.age > 25) & (data_raw.age < 31), ('age', group_age[2])] = 1
+    # data_raw.loc[data_raw.age >= 31, ('age', group_age[3])] = 1
+
     data_raw.drop(
-        ['gender'],
+        ['total_experience'],
         inplace=True,
         axis=1
     )
-    a = data_raw.loc[data_raw['rating'] > first]
-    data_raw = data_city(data_raw)
-
-    # Замена рейтинга 0 и 1
-    data_raw.loc[(data_raw.rating <= first), 'rating'] = 0
-    data_raw.loc[(data_raw.rating > first), 'rating'] = 1
-
-    # Сохраним кандидатов с 1 рейтинга
-    a.to_csv('Data/кандидаты_1.csv')
-    # Категориальные признаки в столбцы
-    data_raw = data_to_category(data_raw)
-    data_raw = change_skill_set(data_raw)
-    data_raw = change_age(data_raw)
     return data_raw
 
 
-def data_to_category(data_raw):
-    """ Преобразование категориальных признаков specialty и education_level """
-    # work_experience = [
-    #     'candidate',
-    #     'master',
-    #     'higher',
-    #     'special_secondary',
-    #     'secondary',
-    #     'unfinished_higher',
-    #     'bachelor',
-    # ]
+def change_education_level(data_raw):
     work_experience = pd.unique(data_raw.education_level)
-    # specialty_list = [
-    #     'developer',
-    #     'javadeveloper',
-    #     'javajun',
-    #     'javaintern',
-    #     'other',
-    # ]
-    specialty_list = pd.unique(data_raw.specialty)
+
     # add specialty and education_level
     for el in work_experience:
         data_raw.insert(len(data_raw.columns), el, 0)
-    for el in specialty_list:
-        data_raw.insert(len(data_raw.columns), el, 0)
 
     # Изменяем значения
-    for el in specialty_list:
-        data_raw.loc[(data_raw.specialty == el), ('specialty', el)] = 1
 
     for el in work_experience:
         data_raw.loc[(data_raw.education_level == el), ('education_level', el)] = 1
     # Удаление 'specialty', 'education_level'
     data_raw.drop(
-        ['specialty', 'education_level'],
+        ['education_level'],
+        inplace=True,
+        axis=1
+    )
+    return data_raw
+
+
+def data_processing(data_raw, first):
+    """ Обработка данных """
+    data_raw.drop(
+        ['gender', 'specialty'],
+        inplace=True,
+        axis=1
+    )
+    a = data_raw.loc[data_raw['rating'] >= first]
+    data_raw = data_city(data_raw)
+
+    # Замена рейтинга 0 и 1
+    data_raw.loc[(data_raw.rating < first), 'rating'] = 0
+    data_raw.loc[(data_raw.rating >= first), 'rating'] = 1
+
+    # Сохраним кандидатов с 1 рейтинга
+    a.to_csv('Data/кандидаты_1.csv')
+    # Категориальные признаки в столбцы
+    data_raw = change_education_level(data_raw)
+    # data_raw = change_specialty(data_raw)
+    data_raw = change_skill_set(data_raw)
+    data_raw = change_age(data_raw, group=4)
+    data_raw = change_total_experience(data_raw, group=3)
+    return data_raw
+
+
+def change_specialty(data_raw):
+    specialty_list = pd.unique(data_raw.specialty)
+    for el in specialty_list:
+        data_raw.insert(len(data_raw.columns), el, 0)
+    for el in specialty_list:
+        data_raw.loc[(data_raw.specialty == el), ('specialty', el)] = 1
+    data_raw.drop(
+        ['specialty'],
         inplace=True,
         axis=1
     )
@@ -206,6 +258,8 @@ def data_to_category(data_raw):
 
 def change_skill_set(data_raw):
     """ Преобразовываем skill_set """
+    error_list = [None, '', 'инвентаризация', 'аналитический склад ума', 'решительность', 'поиск информации в интернет',
+                  'немного php', 'адаптивность']
     already_columns = list(data_raw.columns)
     all_skills = []
     for el in data_raw.skill_set:
@@ -216,23 +270,25 @@ def change_skill_set(data_raw):
             sk = sk.strip()
             sk = sk.lower()
             if sk not in all_skills and sk not in already_columns:
-                if sk is not None and sk != '':
+                if sk.lower() not in error_list:
                     if not sk.startswith('https://'):
                         all_skills.append(sk)
 
     for el in all_skills:
         data_raw.insert(len(data_raw.columns), el, 0)
 
-    error_list = [None, '']
     for i in range(len(data_raw.skill_set)):
         if type(data_raw.loc[i, 'skill_set']) == float:
             continue
         for el in data_raw.loc[i, 'skill_set'].split(','):
-            if el in error_list or el.startswith('https://'):
+            if el.lower() in error_list or el.startswith('https://'):
                 continue
             el = el.strip()
             el = el.lower()
             data_raw.loc[i, el] = 1
+    for el in all_skills:
+        if data_raw[el].sum() == 1:
+            data_raw.drop(columns=el, axis=1, inplace=True)
     data_raw.drop(
         ['skill_set'],
         inplace=True,
@@ -292,10 +348,8 @@ def get_result(model, data_raw, X_test, Y_test):
     columns.remove('rating')
     y_pred = model.predict(X_test)
     # print(precision_score(Y, y_pred, average='macro'))
-    print(confusion_matrix(Y_test, y_pred))
     # старая версия подсчета
     model.densify()
-
     coef = model.coef_.reshape(-1, 1)
     score_result = pd.DataFrame(coef, index=columns, columns=['score'])
 
@@ -388,12 +442,11 @@ def model_create(X, Y, data_raw, model):
     lab.fit(Y)
     y_new = lab.fit_transform(Y)
 
-    x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
-
-    X_ = np.concatenate((X[y_new == 0], x_resampled))
-    Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
-
-    X_train, X_test, Y_train, Y_test = train_test_split(X_, Y_, test_size=0.3, random_state=27)
+    # x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
+    #
+    # X_ = np.concatenate((X[y_new == 0], x_resampled))
+    # Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y_new, test_size=0.3, random_state=27)
     # smote = SMOTE(k_neighbors=3)
     # print(X_train.shape)
     # print(len(Y_train))
@@ -404,7 +457,22 @@ def model_create(X, Y, data_raw, model):
         features_train=X_train,
         target_train=Y_train,
     )
-    model.predict(X)
+    print('А. Всех данных')
+    y_pred = model.predict(X)
+    print(confusion_matrix(Y, y_pred))
+    print(log_loss(y_pred, Y))
+    print('Б. Всей обучающей выборки')
+    y_pred = model.predict(X_train)
+    print(confusion_matrix(Y_train, y_pred))
+    print(log_loss(y_pred, Y_train))
+    print('Д. Отобранных на собеседование кандидатов для обучающей выборки')
+    print(confusion_matrix(Y_train, y_pred)[1][1])
+    print('Г.  Всей тестовой выборки')
+    y_pred = model.predict(X_test)
+    print(confusion_matrix(Y_test, y_pred))
+    print(log_loss(y_pred, Y_test))
+    print('Е. Отобранных на собеседование кандидатов для тестовой выборки')
+    print(confusion_matrix(Y_test, y_pred)[1][1])
 
     result_end = get_result(
         model=model_fit,
@@ -422,7 +490,7 @@ def main():
     res = []
     ni = [0.7]
     # np.arange(0.1, 0.9, 0.1)
-    for e in ni:
+    for e in np.arange(0.1, 0.2, 0.1):
         print('Загрузка...')
         data = load_data()
         data = data_processing(
@@ -445,18 +513,76 @@ def main():
 
         param = {
             'fit_intercept': [True, False],
-            'dual': [True, False],
-            'multi_class': ['auto', 'ovr', 'multinomial'],
-            'penalty': ['l1', 'l2', 'elasticnet', 'none'],
-            'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
-            'max_iter': [100, 500, 1000]
+            'multi_class': ['ovr'],
+            'penalty': ['l2'],
+            'C': [0.001, 1, 10, 100],
+            'solver': ['liblinear'],
+            'class_weight': [{
+                1: 1,
+                0: 0
+            }],
+            'max_iter': [100, 1000]
+
+            # ,
+            #     {
+            #         1: 0.9,
+            #         0: 0.1
+            #     },
+            #     {
+            #         1: 0.8,
+            #         0: 0.2
+            #     },
+            #     {
+            #         1: 0.7,
+            #         0: 0.3
+            #     },
+            #     {
+            #         1: 0.6,
+            #         0: 0.4
+            #     }
+
         }
         # model = GridSearchCV(LogisticRegression(), param_grid=param)
+        model = CustomLogisticRegression()
+        # model = LogisticRegression(C=0.001, class_weight={
+        #         1: 0.6,
+        #         0: 0.4
+        #     })
         # model = LogisticRegression(C=0.001, penalty='none')
         # model = LogisticRegression(C=1)
         # model = LogisticRegression(fit_intercept=False, multi_class='ovr')
-        model = LogisticRegression()
+        # model = LogisticRegression()
+        # Для 0.1
+        # model = LogisticRegression(C=1000, multi_class='multinomial')
+
+        # model = GridSearchCV(SVR(), param_grid={
+        #     'kernel': ['rbf', 'linear', 'poly', 'sigmoid'],
+        #         'degree':[1,3,5],
+        #             'gamma': ['scale', 'auto'],
+        #
+        #     'C': [0.01, 1, 10, 100,1000],
+
+        # })
+        # model = SVR(kernel='rbf', C=100)
+        # model = LogisticRegression()
+        # best LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
+        # model = LogisticRegression(C=10, class_weight='balanced')
+        # model = LogisticRegression(C=0.001,
+        # fit_intercept=False,max_iter=500,multi_class='multinomial', penalty='none')
+        # model = CustomLogisticRegression()
+        # best model = RandomForestRegressor(criterion='absolute_error', n_estimators=1000)
+        # model = GridSearchCV(RandomForestRegressor(), param_grid={
+        #     'n_estimators': [10, 100, 1000],
+        #     'criterion': ['squared_error', 'absolute_error', 'poisson'],
+        #
+        # })
         print('Данные обработались, начинается обучение')
+        # model = GridSearchCV(SVR(), param_grid={
+        #     'kernel': ['linear'],
+        #     'C': [0.01, 1, 1000],
+        #
+        # })
+        # model = SVR(C=1000, kernel='poly')
         # model = CustomLogisticRegression(fit_intercept=False, l_rate=0.01, n_epoch=3000)
         score = model_create(
             X=X_raw,
@@ -464,8 +590,13 @@ def main():
             data_raw=data,
             model=model)
         # Проверка на наших данных
-        y_pred = model.predict(X_raw)
-        print(confusion_matrix(Y_raw, y_pred))
+        # error_df = pd.DataFrame()
+        # for el, i, y in zip(y_pred, range(len(y_pred)), Y_raw):
+        #     if el != y:
+        #         data_raw = load_data()
+        #         error_df = error_df.append(data_raw.iloc[i])
+        # error_df.to_csv('error.csv')
+
         print('Обучение закончилось, сохранение результатов')
         if score['score'] < best_score and score['score'] != 0:
             best_score = score['score']
