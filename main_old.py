@@ -534,7 +534,7 @@ def main():
         Логическая регрессия от sklearn
         # best LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
         """
-        model = LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
+        model = LogisticRegression(fit_intercept=False, penalty='none')
         # model = LogisticRegression(C=0.001, class_weight={
         #         1: 0.6,
         #         0: 0.4
