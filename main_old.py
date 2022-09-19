@@ -522,25 +522,6 @@ def main():
                 0: 0
             }],
             'max_iter': [100, 1000]
-
-            # ,
-            #     {
-            #         1: 0.9,
-            #         0: 0.1
-            #     },
-            #     {
-            #         1: 0.8,
-            #         0: 0.2
-            #     },
-            #     {
-            #         1: 0.7,
-            #         0: 0.3
-            #     },
-            #     {
-            #         1: 0.6,
-            #         0: 0.4
-            #     }
-
         }
         # model = GridSearchCV(LogisticRegression(), param_grid=param)
         model = CustomLogisticRegression()
@@ -607,16 +588,6 @@ def main():
     for b in res:
         df.loc[len(df.index)] = [b['score'], round(b['percent_1'], 2), round(b['percent_0'], 2), b['true_1'],
                                  b['true_0'], b['all_0'], b['all_1'], b['el']]
-        # new_df = pd.DataFrame({
-        #     'money': b['score'],
-        #     'score_1': round(b['percent_1'], 2),
-        #     'score_0': round(b['percent_0'], 2),
-        #     'true_1': b['true_1'],
-        #     'true_0': b['true_0'],
-        #     'all_0': b['all_0'],
-        #     'all_1': b['all_1'],
-        #     'el': b['el']}
-        # )
         print(round(b['score']))
         print('{} - {}/{}'.format(round(b['percent_0'], 2), b['true_0'], b['all_0']))
         print('{} - {}/{}'.format(round(b['percent_1'], 2), b['true_1'], b['all_1']))
