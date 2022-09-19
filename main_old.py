@@ -18,7 +18,7 @@ simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 def fit_predict_eval(model, features_train, target_train):
     """ Обучение модели """
-    model.fit_mse(features_train, target_train)
+    model.fit(features_train, target_train)
     # model.fit(features_train, target_train)
 
     # model = model.best_estimator_
@@ -524,7 +524,17 @@ def main():
             'max_iter': [100, 1000]
         }
         # model = GridSearchCV(LogisticRegression(), param_grid=param)
+
+        """
+        Собственная модель CustomLogisticRegression() имеет 2 метода обучения: fit_mse, fit_log_loss
         model = CustomLogisticRegression()
+        """
+        # model = CustomLogisticRegression()
+        """
+        Логическая регрессия от sklearn
+        # best LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
+        """
+        model = LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
         # model = LogisticRegression(C=0.001, class_weight={
         #         1: 0.6,
         #         0: 0.4
@@ -546,7 +556,7 @@ def main():
         # })
         # model = SVR(kernel='rbf', C=100)
         # model = LogisticRegression()
-        # best LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
+
         # model = LogisticRegression(C=10, class_weight='balanced')
         # model = LogisticRegression(C=0.001,
         # fit_intercept=False,max_iter=500,multi_class='multinomial', penalty='none')
