@@ -20,7 +20,6 @@ def fit_predict_eval(model, features_train, target_train):
     """ Обучение модели """
     model.fit(features_train, target_train)
     # model.fit(features_train, target_train)
-
     # model = model.best_estimator_
     return model
 
@@ -465,13 +464,13 @@ def model_create(X, Y, data_raw, model):
     y_pred = model.predict(X_train)
     print(confusion_matrix(Y_train, y_pred))
     print(log_loss(y_pred, Y_train))
-    print('Д. Отобранных на собеседование кандидатов для обучающей выборки')
+    print('В. Отобранных на собеседование кандидатов для обучающей выборки')
     print(confusion_matrix(Y_train, y_pred)[1][1])
     print('Г.  Всей тестовой выборки')
     y_pred = model.predict(X_test)
     print(confusion_matrix(Y_test, y_pred))
     print(log_loss(y_pred, Y_test))
-    print('Е. Отобранных на собеседование кандидатов для тестовой выборки')
+    print('Д. Отобранных на собеседование кандидатов для тестовой выборки')
     print(confusion_matrix(Y_test, y_pred)[1][1])
 
     result_end = get_result(
