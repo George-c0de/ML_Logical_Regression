@@ -487,7 +487,6 @@ def main():
     """ Главная функция """
     best_score = 1000000000
     res = []
-    ni = [0.7]
     # np.arange(0.1, 0.9, 0.1)
     for e in np.arange(0.1, 0.2, 0.1):
         print('Загрузка...')
