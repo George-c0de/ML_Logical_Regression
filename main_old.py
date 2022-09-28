@@ -204,7 +204,6 @@ def change_education_level(data_raw):
         data_raw.insert(len(data_raw.columns), el, 0)
 
     # Изменяем значения
-
     for el in work_experience:
         data_raw.loc[(data_raw.education_level == el), ('education_level', el)] = 1
     # Удаление 'specialty', 'education_level'
@@ -441,11 +440,15 @@ def model_create(X, Y, data_raw, model):
     lab.fit(Y)
     y_new = lab.fit_transform(Y)
 
-    x_resampled = resample(X[y_new == 1], n_samples=X[y_new == 0].shape[0], random_state=1000)
+    # X_train_, X_test_, Y_train_, Y_test_ = train_test_split(X, y_new, test_size=0.3, random_state=50)
 
-    X_ = np.concatenate((X[y_new == 0], x_resampled))
-    Y_ = np.concatenate((y_new[y_new == 0], np.ones(shape=(X[y_new == 0].shape[0],), dtype=np.int32)))
+    x_resampled = resample(X[Y == 1], n_samples=X[Y == 0].shape[0], random_state=1000)
+
+    X_ = np.concatenate((X[Y == 0], x_resampled))
+    Y_ = np.concatenate((Y[Y == 0], np.ones(shape=(X[Y == 0].shape[0],), dtype=np.int32)))
+
     X_train, X_test, Y_train, Y_test = train_test_split(X_, Y_, test_size=0.3, random_state=27)
+
     # smote = SMOTE(k_neighbors=3)
     # print(X_train.shape)
     # print(len(Y_train))
@@ -532,6 +535,7 @@ def main():
         Логическая регрессия от sklearn
         # best LogisticRegression(C=0.001, fit_intercept=False, penalty='none')
         """
+        # best
         model = LogisticRegression(fit_intercept=False, penalty='none')
         # model = LogisticRegression(C=0.001, class_weight={
         #         1: 0.6,
@@ -559,7 +563,8 @@ def main():
         # model = LogisticRegression(C=0.001,
         # fit_intercept=False,max_iter=500,multi_class='multinomial', penalty='none')
         # model = CustomLogisticRegression()
-        # best model = RandomForestRegressor(criterion='absolute_error', n_estimators=1000)
+        # best
+        # model = RandomForestRegressor(criterion='absolute_error', n_estimators=1000)
         # model = GridSearchCV(RandomForestRegressor(), param_grid={
         #     'n_estimators': [10, 100, 1000],
         #     'criterion': ['squared_error', 'absolute_error', 'poisson'],
