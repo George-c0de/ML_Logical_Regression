@@ -9,6 +9,8 @@ packages = [{include = "ml_logical_regression"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 pillow = "^9.5.0"
+pip = "^23.1.2"
+numpy = "^1.24.3"
 
 [[tool.poetry.source]]
 name = "space-python"
