@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ml-logical-regression"
+version = "0.1.0"
+description = ""
+authors = ["GEORGE <gera.evseev2001@gmil.com>"]
+readme = "README.md"
+packages = [{include = "ml_logical_regression"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pillow = "^9.5.0"
+
+[[tool.poetry.source]]
+name = "space-python"
+url = "https://pypi.pkg.jetbrains.space/georgexd/p/candidate-search-system/python/simple"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
