@@ -9,6 +9,9 @@ packages = [{include = "ml_logical_regression"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 
+[[tool.poetry.source]]
+name = "space-python"
+url = "https://pypi.pkg.jetbrains.space/georgexd/p/candidate-search-system/python/simple"
 
 [build-system]
 requires = ["poetry-core"]

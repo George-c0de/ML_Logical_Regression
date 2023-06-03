@@ -20,7 +20,7 @@ def fit_predict_eval(model, features_train, target_train):
     return model
 
 
-def load_data(path_of_file='Data/dataNew.csv'):
+def load_data(path_of_file='../../Data/dataNew.csv'):
     """ Загрузка данных """
     data_csv = pd.read_csv(path_of_file, encoding='utf-8')
     data_csv.drop(columns='Unnamed: 0', inplace=True)
@@ -76,7 +76,7 @@ def score_model(model, features_train, features_test, target_train, target_test,
 
     score_result = pd.DataFrame(score_new, index=new_columns, columns=['score'])
     score_result.sort_values(by='score', ascending=False, inplace=True)
-    score_result.to_csv('Data/score.csv')
+    score_result.to_csv('../../Data/score.csv')
     matrix = confusion_matrix(target_test, y_pred)
     # print(matrix)
     # cm_display = ConfusionMatrixDisplay(confusion_matrix(target_test, y_pred)).plot()
@@ -226,7 +226,7 @@ def data_processing(data_raw, first):
     data_raw.loc[(data_raw.rating >= first), 'rating'] = 1
 
     # Сохраним кандидатов с 1 рейтинга
-    a.to_csv('Data/кандидаты_1.csv')
+    a.to_csv('../../Data/кандидаты_1.csv')
     # Категориальные признаки в столбцы
     data_raw = change_education_level(data_raw)
     # data_raw = change_specialty(data_raw)
@@ -332,7 +332,7 @@ def save_score(data_raw, model):
     # score_result = pd.DataFrame(array, index=new_columns, columns=['score'])
     score_result = pd.DataFrame(model.best_estimator_.coef_[0], index=new_columns, columns=['score'])
     score_result.sort_values(by='score', ascending=False, inplace=True)
-    score_result.to_csv('Data/score.csv')
+    score_result.to_csv('../../Data/score.csv')
 
 
 def get_result(model, data_raw, X_test, Y_test):
@@ -348,7 +348,7 @@ def get_result(model, data_raw, X_test, Y_test):
     score_result = pd.DataFrame(coef, index=columns, columns=['score'])
 
     score_result.sort_values(by='score', ascending=False, inplace=True)
-    score_result.to_csv('Data/score.csv')
+    score_result.to_csv('../../Data/score.csv')
     all_0, all_1, true_1, true_1, true_0, successful_interviews = 0, 0, 0, 0, 0, 0
     print(log_loss(Y_test, y_pred))
     for x, y in zip(y_pred, Y_test):
