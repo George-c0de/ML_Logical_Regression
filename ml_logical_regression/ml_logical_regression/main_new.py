@@ -30,8 +30,11 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.impute import SimpleImputer
 
 import logging
-import seaborn as sns
+
+# Устанавливаем тему оформления Seaborn
 sns.set_theme(style="whitegrid")
+sns.set(font_scale=1.1)
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -42,21 +45,22 @@ RATING_THRESHOLD = 0.1
 TEST_SIZE = 0.4
 RANDOM_STATE = 1000
 
-# Новые бизнес-метрики
-# 1) DESIRED_ACCEPTANCE_RATE  -> хотим, чтобы (TP / (TP+FN)) * 100% >= этого значения
+# Новые бизнес-метрики:
+# 1) DESIRED_ACCEPTANCE_RATE -> хотим, чтобы (TP / (TP+FN)) * 100% >= этого значения
 # 2) DESIRED_INTERVIEWS_REDUCTION -> хотим, чтобы (FP / (TP+FP)) * 100% <= этого значения
-DESIRED_ACCEPTANCE_RATE = 90.0    # Процент принятых хороших
-DESIRED_INTERVIEWS_REDUCTION = 10.0  # Максимально допустимый % лишних собеседований
+DESIRED_ACCEPTANCE_RATE = 90.0     # Процент принятых хороших
+DESIRED_INTERVIEWS_REDUCTION = 10.0  # Макс. допустимый % лишних собеседований
 
-# Для приоритета «не пропустить хорошего кандидата» используем F2
+# Приоритет «не пропустить хорошего кандидата» -> используем F2
 f2_scorer = make_scorer(fbeta_score, beta=2, zero_division=0)
 
+# Параметры для перебора в GridSearchCV
 LOGREG_PARAMS = {
     "classifier__fit_intercept": [True, False],
     "classifier__penalty": ["l1", "l2"],
     "classifier__solver": ["liblinear", "saga"],
     "classifier__C": [0.01, 0.1, 1, 10, 100],
-    "classifier__class_weight": [None, "balanced"]  # Перебираем также балансировку классов
+    "classifier__class_weight": [None, "balanced"]
 }
 
 
@@ -72,11 +76,12 @@ def load_data(path: str = DATA_PATH) -> pd.DataFrame:
         logger.error(f"Файл не найден: {path}")
         raise
 
+    # Удаляем столбец Unnamed: 0, если он есть
     if "Unnamed: 0" in df.columns:
         df = df.drop(columns="Unnamed: 0")
         logger.info("[15%] Удалён столбец 'Unnamed: 0'.")
 
-    # Обработка пропущенных значений: для строковых – режим, для числовых – медиана
+    # Заполняем пропуски: для строковых – режим, для числовых – медиана
     for column in df.columns:
         if df[column].dtype == 'object':
             mode_val = df[column].mode()[0]
@@ -94,15 +99,10 @@ def visual_data_analysis(df: pd.DataFrame) -> None:
     Выполняет визуальный анализ исходных данных:
       - Распределение целевой переменной (rating)
       - Гистограммы числовых признаков и корреляционная матрица
-      - Анализ категориальных признаков (например, education_level, specialty, city)
-      - Анализ столбца 'skill_set' (если присутствует)
+      - Анализ категориальных признаков (education_level, specialty, city)
+      - Анализ столбца 'skill_set'
     """
-    # Настройка стиля графиков
-    sns.set_theme(style="whitegrid")
-    sns.set(font_scale=1.1)
-
-    # 1. Распределение целевой переменной
-    # Если рейтинг представлен числовым значением, можно посмотреть его распределение
+    # 1. Распределение рейтинга
     plt.figure(figsize=(8, 5))
     if df["rating"].nunique() > 2:
         sns.histplot(df["rating"], bins=20, kde=True, color="skyblue")
@@ -117,7 +117,7 @@ def visual_data_analysis(df: pd.DataFrame) -> None:
 
     # 2. Анализ числовых признаков
     numerical_cols = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
-    # Исключаем столбец 'rating' для гистограмм, если он уже отображается отдельно
+    # Исключаем 'rating', т.к. уже посмотрели
     if "rating" in numerical_cols:
         numerical_cols.remove("rating")
 
@@ -127,7 +127,7 @@ def visual_data_analysis(df: pd.DataFrame) -> None:
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.show()
 
-        # Корреляционная матрица (включая рейтинг, если бинарный)
+        # Корреляционная матрица (добавляем rating, если он числовой)
         corr_cols = numerical_cols + ["rating"]
         corr_matrix = df[corr_cols].corr()
         plt.figure(figsize=(12, 8))
@@ -137,8 +137,7 @@ def visual_data_analysis(df: pd.DataFrame) -> None:
     else:
         logger.info("Нет числовых признаков для визуального анализа.")
 
-    # 3. Анализ категориальных признаков
-    # Если в данных есть такие признаки, как education_level, specialty, city
+    # 3. Анализ категориальных признаков (education_level, specialty, city)
     categorical_cols = []
     for col in ['education_level', 'specialty', 'city']:
         if col in df.columns:
@@ -156,18 +155,10 @@ def visual_data_analysis(df: pd.DataFrame) -> None:
     # 4. Анализ навыков (skill_set)
     if "skill_set" in df.columns:
         df["skill_set"] = df["skill_set"].fillna("")
-        # Разбиваем навыки по запятой и очищаем данные
         all_skills = df["skill_set"].str.split(",").explode().str.strip().str.lower()
-        # Убираем пустые значения и ссылки
+        # Убираем пустые и ссылки
         all_skills = all_skills[(all_skills != "") & (~all_skills.str.startswith("https://"))]
         top_skills = all_skills.value_counts().head(10)
-
-        plt.figure(figsize=(10, 6))
-        sns.barplot(x=top_skills.values, y=top_skills.index, palette="magma")
-        plt.title("Топ-10 наиболее распространённых навыков")
-        plt.xlabel("Количество упоминаний")
-        plt.ylabel("Навык")
-        plt.show()
 
 
 def encode_skill_set(df: pd.DataFrame) -> pd.DataFrame:
@@ -185,7 +176,7 @@ def encode_skill_set(df: pd.DataFrame) -> pd.DataFrame:
         index=df.index
     )
     df = pd.concat([df, skill_encoded], axis=1)
-    df = df.drop(columns='skill_set')
+    df.drop(columns='skill_set', inplace=True)
     logger.info("[25%] Столбец 'skill_set' закодирован.")
     return df
 
@@ -193,23 +184,22 @@ def encode_skill_set(df: pd.DataFrame) -> pd.DataFrame:
 def data_processing(df: pd.DataFrame, rating_threshold: float) -> pd.DataFrame:
     """
     Предобрабатывает DataFrame:
-      - Удаляет столбец 'rubbish'
+      - Удаляет столбец 'rubbish' (если есть)
       - Удаляет столбец 'gender' (если есть)
-      - Обрабатывает текстовые и категориальные признаки
-      - Преобразует целевую переменную 'rating' в бинарную метку (0 или 1)
+      - Кодирует skill_set
+      - Преобразует 'rating' в бинарную метку (0 или 1) с заданным порогом
     """
     if 'rubbish' in df.columns:
-        df = df.drop(columns='rubbish')
+        df.drop(columns='rubbish', inplace=True)
         logger.info("[30%] Удалён столбец 'rubbish'.")
 
     df = encode_skill_set(df)
 
-    for col_to_drop in ['gender']:
-        if col_to_drop in df.columns:
-            df.drop(columns=[col_to_drop], inplace=True)
-            logger.info(f"Удалён столбец '{col_to_drop}'.")
+    if 'gender' in df.columns:
+        df.drop(columns='gender', inplace=True)
+        logger.info("Удалён столбец 'gender'.")
 
-    # Преобразуем 'rating' в бинарную метку
+    # Бинаризация рейтинга
     df["rating"] = (df["rating"] >= rating_threshold).astype(int)
     logger.info("[35%] 'rating' преобразован в бинарную метку.")
 
@@ -243,15 +233,15 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     """
     Обучает модель логистической регрессии (оптимизация F2) и выводит метрики:
       - Accuracy, Precision, Recall, F1, F2, ROC AUC
-      - Процент принятых хороших (Good Acceptance Rate = Recall)
-      - Процент лишних собеседований (Extra Interviews Rate = FP / (TP+FP))
-      - Сравнение с DESIRED_ACCEPTANCE_RATE и DESIRED_INTERVIEWS_REDUCTION
+      - Процент принятых хороших (Recall)
+      - Процент лишних собеседований (FP / (TP+FP))
+      - Сравнение с целевыми бизнес-метриками
     """
-
-    # Для новых/редких категорий education_level, specialty и city
     def unify_categories(series: pd.Series, known_cats: set, other_label='other') -> pd.Series:
+        """Все категории, которых нет в known_cats, превращаем в 'other'."""
         return series.apply(lambda x: x if x in known_cats else other_label)
 
+    # Унификация категорий в обучающем и тестовом наборе (education_level, specialty, city)
     if 'education_level' in X_train.columns:
         known_ed_levels = set(X_train['education_level'].unique())
         X_train['education_level'] = unify_categories(X_train['education_level'], known_ed_levels)
@@ -273,7 +263,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     else:
         known_city_levels = []
 
-    # Определяем, какие колонки числовые, какие категориальные
+    # Определяем числовые и категориальные признаки
     numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
     categorical_features = []
     if 'education_level' in X_train.columns:
@@ -283,12 +273,12 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     if 'city' in X_train.columns:
         categorical_features.append('city')
 
-    # Приводим set в list для OneHotEncoder
+    # Превращаем set в list для OneHotEncoder
     cat_ed_levels = sorted(list(known_ed_levels)) if known_ed_levels else []
     cat_sp_levels = sorted(list(known_sp_levels)) if known_sp_levels else []
     cat_city_levels = sorted(list(known_city_levels)) if known_city_levels else []
 
-    # Настройка ColumnTransformer
+    # ColumnTransformer для числовых и категориальных признаков
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', Pipeline(steps=[
@@ -297,7 +287,6 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
             ]), numerical_features),
             ('cat', Pipeline(steps=[
                 ('imputer', SimpleImputer(strategy='most_frequent')),
-                # Передаём списки категорий для каждого признака
                 ('onehot', OneHotEncoder(
                     categories=[cat_ed_levels, cat_sp_levels, cat_city_levels],
                     drop='first',
@@ -308,13 +297,14 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
         remainder='passthrough'
     )
 
+    # Имбаланс и классификатор
     pipeline = ImbPipeline(steps=[
         ('preprocessor', preprocessor),
         ('smote', BorderlineSMOTE(random_state=RANDOM_STATE)),
         ('classifier', LogisticRegression(max_iter=1000, tol=1e-3, random_state=RANDOM_STATE))
     ])
 
-    # Подбор гиперпараметров по F2
+    # GridSearchCV с оптимизацией F2
     grid_search = GridSearchCV(
         estimator=pipeline,
         param_grid=LOGREG_PARAMS,
@@ -328,15 +318,19 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     grid_search.fit(X_train, y_train)
     logger.info("[70%] Обучение модели завершено.")
 
-    # Предсказания (стандартный порог = 0.5)
+
+
+    # Предсказания при пороге 0.5
     y_pred = grid_search.predict(X_test)
     y_proba = grid_search.predict_proba(X_test)[:, 1]
 
-    # Подбираем оптимальный порог для максимизации F2
+    plot_f2_vs_threshold(y_test, y_proba)
+
+    # Подбираем оптимальный порог под F2
     best_threshold = find_best_threshold_f2(y_test, y_proba, step=0.01)
     y_pred_best = (y_proba >= best_threshold).astype(int)
 
-    # --- Метрики при пороге 0.5 ---
+    # Метрики при пороге 0.5
     acc = accuracy_score(y_test, y_pred)
     prec = precision_score(y_test, y_pred, zero_division=0.0)
     rec = recall_score(y_test, y_pred, zero_division=0.0)
@@ -347,7 +341,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     balanced_acc = balanced_accuracy_score(y_test, y_pred)
     cm = confusion_matrix(y_test, y_pred)
 
-    # --- Метрики при оптимальном пороге ---
+    # Метрики при оптимальном пороге
     acc_best = accuracy_score(y_test, y_pred_best)
     prec_best = precision_score(y_test, y_pred_best, zero_division=0.0)
     rec_best = recall_score(y_test, y_pred_best, zero_division=0.0)
@@ -359,7 +353,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     cls_report = classification_report(y_test, y_pred, zero_division=0.0)
     cls_report_best = classification_report(y_test, y_pred_best, zero_division=0.0)
 
-    # Вычисление новых бизнес-метрик
+    # Расчёт бизнес-метрик
     TN, FP, FN, TP = cm.ravel()
     TN_b, FP_b, FN_b, TP_b = cm_best.ravel()
 
@@ -370,6 +364,11 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     extra_interviews_rate_best = (FP_b / (TP_b + FP_b) * 100) if (TP_b + FP_b) > 0 else 0.0
 
     def compare_metric(metric_value: float, desired_value: float, metric_name: str, higher_is_better=True):
+        """
+        Сравнивает метрику с целевым значением.
+        Если higher_is_better=True, хотим metric_value >= desired_value.
+        Если False, хотим metric_value <= desired_value.
+        """
         if higher_is_better:
             if metric_value >= desired_value:
                 return f"{metric_name} {metric_value:.2f}% (Достигнута/Превышена цель {desired_value:.2f}%)"
@@ -381,6 +380,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
             else:
                 return f"{metric_name} {metric_value:.2f}% (Выше допустимой цели {desired_value:.2f}%)"
 
+    # Формируем вывод
     results = (
         "=== Итоговая оценка модели (стандартный порог = 0.5) ===\n"
         f"Лучшие параметры: {grid_search.best_params_}\n"
@@ -397,8 +397,8 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
         "--- Новые бизнес-метрики (порог 0.5) ---\n"
         f"Good Acceptance Rate (Recall):  {good_acceptance_rate_05:.2f}%\n"
         f"Extra Interviews Rate:          {extra_interviews_rate_05:.2f}%\n"
-        f"{compare_metric(good_acceptance_rate_05, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', higher_is_better=True)}.\n"
-        f"{compare_metric(extra_interviews_rate_05, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', higher_is_better=False)}.\n"
+        f"{compare_metric(good_acceptance_rate_05, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', True)}.\n"
+        f"{compare_metric(extra_interviews_rate_05, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', False)}.\n"
         "----------------------------------------------------------\n"
         f"=== Оценка модели при оптимальном пороге (threshold = {best_threshold:.2f}) ===\n"
         f"Accuracy:           {acc_best:.3f}\n"
@@ -412,14 +412,46 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
         "--- Новые бизнес-метрики (оптимальный порог) ---\n"
         f"Good Acceptance Rate (Recall):  {good_acceptance_rate_best:.2f}%\n"
         f"Extra Interviews Rate:          {extra_interviews_rate_best:.2f}%\n"
-        f"{compare_metric(good_acceptance_rate_best, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', higher_is_better=True)}.\n"
-        f"{compare_metric(extra_interviews_rate_best, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', higher_is_better=False)}.\n"
+        f"{compare_metric(good_acceptance_rate_best, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', True)}.\n"
+        f"{compare_metric(extra_interviews_rate_best, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', False)}.\n"
     )
 
     print(results)
     logger.info("[100%] Оценка модели завершена.")
 
     # ROC-кривая
+    # === Важность признаков ===
+    # Достаём имена признаков из препроцессора
+    # (нужно, чтобы соответствовать OneHot-признакам и числовым)
+    ohe = grid_search.best_estimator_.named_steps['preprocessor'] \
+                 .named_transformers_['cat'] \
+                 .named_steps['onehot']
+    # числовые фичи:
+    num_feats = numerical_features
+    # OHE-фичи:
+    cat_feats = ohe.get_feature_names_out(categorical_features).tolist()
+    all_features = num_feats + cat_feats
+
+    coefs = grid_search.best_estimator_.named_steps['classifier'].coef_[0]
+    fi = pd.DataFrame({
+        'feature': all_features,
+        'coef': coefs
+    })
+    fi['abs_coef'] = fi['coef'].abs()
+    fi = fi.sort_values('abs_coef', ascending=False).head(10)
+
+    # Печать таблицы важных фичей
+    print("=== Top-10 важнейших признаков ===")
+    print(fi[['feature', 'coef']].to_string(index=False))
+
+    # График важности
+    plt.figure(figsize=(8, 6))
+    plt.barh(fi['feature'], fi['coef'])
+    plt.xlabel("Коэффициент логистической регрессии")
+    plt.title("Топ-10 признаков по абсолютной важности")
+    plt.gca().invert_yaxis()
+    plt.tight_layout()
+    plt.show()
     plt.figure(figsize=(8, 6))
     fpr, tpr, _ = roc_curve(y_test, y_proba)
     plt.plot(fpr, tpr, label=f"ROC curve (AUC = {roc_auc:.3f})")
@@ -438,14 +470,14 @@ def main():
     # 1. Загрузка данных
     df_raw = load_data()
 
-    # 2. Визуальный анализ исходных данных (до преобразований)
+    # 2. Визуальный анализ (до любых преобразований)
     visual_data_analysis(df_raw.copy())
 
     # 3. Предобработка данных
     df = data_processing(df_raw, rating_threshold=RATING_THRESHOLD)
     logger.info("[37%] Признаки и целевая переменная подготовлены.")
 
-    # 4. Разделение на признаки и целевую переменную
+    # 4. Разделение на X и y
     y = df["rating"].values
     X = df.drop(columns="rating")
     logger.info("[38%] Данные разделены на обучающую и тестовую выборки.")
@@ -457,8 +489,33 @@ def main():
 
     # 6. Обучение и оценка модели
     build_and_evaluate_model(X_train, y_train, X_test, y_test)
+
     logger.info("Программа завершена.")
 
 
+def plot_f2_vs_threshold(y_true: np.ndarray, y_proba: np.ndarray, step: float = 0.01) -> None:
+    thresholds = np.arange(0.0, 1.0 + step, step)
+    f2_scores = []
+    for t in thresholds:
+        y_pred = (y_proba >= t).astype(int)
+        f2 = fbeta_score(y_true, y_pred, beta=2, zero_division=0)
+        f2_scores.append(f2)
+
+    optimal_idx = np.argmax(f2_scores)
+    optimal_threshold = thresholds[optimal_idx]
+    optimal_f2 = f2_scores[optimal_idx]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(thresholds, f2_scores, label='F2 Score', color='navy', linewidth=2)
+    plt.axvline(x=optimal_threshold, color='darkorange', linestyle='--', linewidth=2,
+                label=f'Оптимальный порог = {optimal_threshold:.2f}')
+    plt.scatter([optimal_threshold], [optimal_f2], color='red', s=100, zorder=5)
+    plt.title("Зависимость F2-метрики от порога", fontsize=16)
+    plt.xlabel("Порог принятия решения", fontsize=14)
+    plt.ylabel("F2 Score", fontsize=14)
+    plt.legend(fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.show()
 if __name__ == "__main__":
     main()
