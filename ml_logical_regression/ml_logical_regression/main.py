@@ -21,4 +21,4 @@ test.create_train_split()  # Создание выборок (тестовая, 
 
 test.model_fit()  # Обучение модели
 
-test.result()
+# test.result()

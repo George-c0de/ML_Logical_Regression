@@ -1,12 +1,16 @@
 import pandas as pd
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import ClusterCentroids
 from pandas import DataFrame
 from sklearn import preprocessing
+from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, log_loss
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 from ml_logical_regression.ml_logical_regression.decorator.decorators import measure_execution_time
+from collections import Counter, defaultdict
 
 
 class LogicalRegression:
@@ -32,10 +36,17 @@ class LogicalRegression:
             'total_experience',
         ]
         self.model = LogisticRegression(fit_intercept=False, penalty='none')
-        self.threshold = 0.5
+        self.threshold = 0.1
         self.skills_for_save = [
-            'Python', 'Java', 'SQLite', 'Flask', 'Socket','async.io', 'JavaFX',
+            'Python',
+            'Java',
+            'SQLite',
+            'Flask',
+            'Socket',
+            'async.io',
+            'JavaFX',
         ]
+
     @property
     def return_columes(self) -> list[str]:
         """
@@ -99,7 +110,6 @@ class LogicalRegression:
         self.data_raw = pd.read_csv(self.__file_name, encoding='utf-8')
         self.data_raw.drop(columns='Unnamed: 0', inplace=True)
 
-    @measure_execution_time
     def process_city_column(self):
         """
         Преобразование категориального признака в бинарный
@@ -166,6 +176,25 @@ class LogicalRegression:
         self.y_raw = self.data_raw.rating
         self.x_raw = self.data_raw.loc[:, self.data_raw.columns != 'rating']
 
+    def use_cluster_centroids(self) -> tuple:
+        smote = SMOTE()
+        X, y = make_classification(
+            n_classes=2,
+            class_sep=2,
+            weights=[0.1, 0.9],
+            n_informative=3,
+            n_redundant=1,
+            flip_y=0,
+            n_features=20,
+            n_clusters_per_class=1,
+            n_samples=1000,
+            random_state=10,
+        )
+        print(f'Original dataset shape {Counter(y)}')
+        X_res, y_res = smote.fit_resample(X, y)
+        print(f'Resampled dataset shape {Counter(y_res)}')
+        return smote.fit_resample(self.x_train, self.y_train)
+
     def create_train_split(self):
         """
         Проводит разбивку данных и сохраняет в переменные
@@ -176,6 +205,8 @@ class LogicalRegression:
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
             self.x_raw, self.y_raw, test_size=0.3, random_state=1000
         )
+        # self.x_train, self.y_train = self.use_cluster_centroids()
+        # print(self.use_cluster_centroids())
 
     def model_train(self):
         """
@@ -184,32 +215,52 @@ class LogicalRegression:
             Обученная модель сохраняется в переменную класса
         """
         self.model.fit(self.x_train, self.y_train)
-    def get_ru_columes(self):
+
+    def get_ru_columes(self) -> list:
+        # TODO
+        result = []
+        result = [
+            skill
+            for el in list(self.data_raw['skill_set'])
+            if not isinstance(el, str)
+            for skill in el.split(',')
+            if any(ord(c) > 127 for c in skill) and skill
+        ]
+        print()
         result = []
         for el in list(self.data_raw['skill_set']):
             if not isinstance(el, str):
                 continue
             for skill in el.split(','):
-                if (
-                        skill.upper() in result
-                        and all(ord(c) <= 127 for c in skill)
-                        and skill
-                ):
-                    result.append(skill.upper())
-    @measure_execution_time
+                if any(ord(c) > 127 for c in skill) and skill:
+                    result.append(skill)
+        print(result)
+        return result
+
     def skills_to_categorical_volume(self):  # TODO Проверить метод
         # Разделение столбца skill_set и создание нового столбца для каждого навыка
         # Разбиение столбца skill_set на отдельные столбцы для каждого навыка
         skills = self.data_raw['skill_set'].str.get_dummies(sep=',')
+        result = defaultdict(int)
+        for el in self.data_raw.skill_set:
+            if el is not None and isinstance(el, str):
+                el = el.split(',')
+                for e in el:
+                    result[e.upper()] += 1
 
+        sorted_result = dict(filter(lambda item: item[1] >20, result.items()))
+
+        print(sorted_result)
         # Объединение полученных столбцов с исходным DataFrame
         df = pd.concat([self.data_raw, skills], axis=1)
 
         # Удаление столбца skill_set
+
+        self.data_raw = df
+        # print(self.get_ru_columes())
+        # self.delete_columes(columns_to_drop=self.get_ru_columes())
         df.drop('skill_set', axis=1, inplace=True)
 
-        print(df)
-        self.data_raw = df
         return
         skills.columns = skills.columns.map(lambda x: f'skill_{x + 1}')
 
@@ -221,7 +272,6 @@ class LogicalRegression:
         self.data_raw.fillna(0, inplace=True)
 
         # Вывод DataFrame
-        print(self.data_raw)
         return
         skills_encoded = pd.get_dummies(self.data_raw['skill_set'], prefix='', prefix_sep='')
 
@@ -231,7 +281,6 @@ class LogicalRegression:
         # Print the new DataFrame
         columes = new_df.columns
         self.data_raw = pd.concat([self.data_raw, new_df], axis=1)
-        print(self.data_raw)
         self.data_raw = pd.get_dummies(
             self.data_raw,
             columns=columes,
@@ -239,18 +288,13 @@ class LogicalRegression:
             prefix='',
             prefix_sep='',  # prefix = '',prefix_sep='', чтобы убрать переименования столбца
         )
-        print(self.data_raw)
         return
         result = []
         for el in list(self.data_raw['skill_set']):
             if not isinstance(el, str):
                 continue
             for skill in el.split(','):
-                if (
-                        skill.upper() in result
-                        and all(ord(c) <= 127 for c in skill)
-                        and skill
-                ):
+                if skill.upper() in result and all(ord(c) <= 127 for c in skill) and skill:
                     result.append(skill.upper())
 
         skills = self.data_raw["skill_set"].str.split(",").explode()
@@ -278,7 +322,6 @@ class LogicalRegression:
         # Вывод преобразованных данных
         self.data_raw = data_encoded
 
-
     def delete_columes(self, columns_to_drop: list[str]):
         """
 
@@ -305,6 +348,7 @@ class LogicalRegression:
             Сохраняет обученную модель
         """
         self.model.fit(self.x_train, self.y_train)
+
     def result(self):
         y_pred = self.model.predict(self.x_raw)  # Результаты модели
         print(confusion_matrix(self.y_raw, y_pred))
@@ -321,4 +365,3 @@ class LogicalRegression:
         print(log_loss(y_pred, self.y_test))
         print('Д. Отобранных на собеседование кандидатов для тестовой выборки')
         print(confusion_matrix(self.y_test, y_pred)[1][1])
-
