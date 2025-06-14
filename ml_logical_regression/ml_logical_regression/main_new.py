@@ -316,6 +316,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
 
     logger.info("[40%] Начало обучения модели с GridSearchCV (F2)...")
     grid_search.fit(X_train, y_train)
+    print("Лучший скорер:", grid_search.best_score_, grid_search.best_params_)
     logger.info("[70%] Обучение модели завершено.")
 
 
@@ -323,6 +324,24 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     # Предсказания при пороге 0.5
     y_pred = grid_search.predict(X_test)
     y_proba = grid_search.predict_proba(X_test)[:, 1]
+    # --- Confusion matrices for train, test and full datasets ---
+    # 1) На тестовом наборе (вы уже вычислили выше)
+    cm_test = confusion_matrix(y_test, y_pred)
+    ll_test = log_loss(y_test, y_proba)
+
+    # 2) На тренировочном наборе
+    y_pred_train = grid_search.predict(X_train)
+    cm_train = confusion_matrix(y_train, y_pred_train)
+    ll_train = log_loss(y_train, y_pred_train)
+
+    # 3) На всём датасете (train + test)
+    x_full = pd.concat([X_train, X_test], ignore_index=True)
+    y_full = np.concatenate([y_train, y_test])
+    y_pred_full = grid_search.predict(x_full)
+    cm_full = confusion_matrix(y_full, y_pred_full)
+    ll_full = log_loss(y_full, y_pred_full)
+
+
 
     plot_f2_vs_threshold(y_test, y_proba)
 
@@ -330,7 +349,18 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     best_threshold = find_best_threshold_f2(y_test, y_proba, step=0.01)
     y_pred_best = (y_proba >= best_threshold).astype(int)
 
-    # Метрики при пороге 0.5
+    # 4) Выводим все три матрицы ошибок
+    print(f"=== Confusion Matrix: Training Set (threshold={y_pred_best}) ===")
+    print(cm_train)
+    print(f"Log Loss: {ll_test:.4f}\n")
+    print(f"=== Confusion Matrix: Test Set (threshold={y_pred_best}) ===")
+    print(cm_test)
+    print(f"Log Loss: {ll_train:.4f}\n")
+    print(f"=== Confusion Matrix: All Data (threshold={y_pred_best}) ===")
+    print(cm_full)
+    print(f"Log Loss: {ll_full:.4f}\n")
+
+    # Метрики при пороге best_threshold
     acc = accuracy_score(y_test, y_pred)
     prec = precision_score(y_test, y_pred, zero_division=0.0)
     rec = recall_score(y_test, y_pred, zero_division=0.0)
