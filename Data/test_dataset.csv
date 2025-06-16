@@ -1,0 +1,12 @@
+,age,skills,city,gender,specialty,java,maven,git,sql,hibernate,spring,oop,student,education_level,total_experience,skill_set,rubbish
+0,17,1,Омск,male,developer,1,0,1,1,0,0,1,1,special_secondary,0,"Обучаемость,JavaScript,jQuery,CSS,MySQL,HTML,PHP,Python,ООП,SQL,Linux,Ajax,Bootstrap,Apache HTTP Server,Java,MVC,Django Framework,Git,Laravel,Vue.js,Tailwind,Nginx,Redis,REST",1
+1,19,1,Москва,male,other,1,0,0,1,0,0,0,0,secondary,0,"Python,Java,SQLite,Flask,Socket,async.io,JavaFX",0
+2,21,1,Новосибирск,male,javajun,1,0,1,1,0,1,0,0,secondary,0,"C++,Java,Python,PostgreSQL,Git,Spring",0
+3,34,1,Калининград,male,javadeveloper,1,0,1,1,1,1,0,0,higher,17,"Java,Spring Framework,PostgreSQL,Hibernate ORM,CSS,HTML,Git",0
+4,21,1,Москва,male,javadeveloper,1,1,1,1,1,1,1,1,unfinished_higher,0,"Git,C#,Unity,Работа в команде,Oracle Pl/SQL,CMS Wordpress,Разработка компьютерных Игр,ООП,HTML,CSS,Java,Apache Maven,Spring Framework,Spring boot,Spring security,Spring data,Hibernate",2
+5,18,1,Уфа,male,other,1,0,1,0,0,0,0,1,unfinished_higher,0,"Обучаемость,Адаптация,Работа в команде,Пользователь ПК,Python,Linux,C++,Mathematical Analysis,Английский язык,Работа с оргтехникой,CSS,Git,Java,Управление проектами",6
+6,17,1,Москва,male,javajun,1,1,1,1,1,1,0,0,secondary,7,"Java,SQL,MySQL,PostgreSQL,Hibernate ORM,JBoss,Apache Tomcat,Apache Maven,Git,Design Patterns,Design Principles,Spring Framework,Spring Boot,Spring Data,Spring Security,Spring MVC,Spring Test",0
+7,33,1,Omsk,male,javajun,1,1,1,1,0,1,0,0,bachelor,151,"Java EE,SQL,JDBC,Apache Maven,Git,JUnit,Mockito,Английский язык,Немецкий язык,Spring Framework,Spring MVC",1
+8,36,1,Армавир,male,javadeveloper,1,1,1,0,1,0,1,0,higher,157,"Java,Maven,Linux,ООП,Git,HTML5,CSS3,Hibernate ORM,MySQL/PostgreSQL(базовые запросы)",1
+9,18,1,Уфа,male,developer,0,0,0,0,0,0,0,0,secondary,20,"грамотная устная речь,,владение английским,уверенное пользование пк,коммуникативность,юмористические навыки,and so on ETC",5
+10,30,1,Атырау,male,developer,0,0,0,0,0,0,0,1,higher,151,"Обучение персонала,Проведение промо акций,B2B Продажи,1С: Торговля,Развитие продаж,Поиск и привлечение клиентов,Подбор персонала,Sales Management,Мерчендайзинг,Проведение презентаций,Организаторские навыки,Управление отношениями с клиентами,Обучение и развитие,Развитие ключевых клиентов,Организация встреч,Управление лояльностью потребителей,Контроль качества,Навыки презентации,Ориентация на результат,Развитие бренда,Навыки переговоров,Деловое общение,Разработка Python,Программирование,Программирование на Python",24

@@ -1,0 +1,144 @@
+,age,skills,city,java,maven,git,sql,hibernate,spring,oop,student,education_level,total_experience,skill_set,rubbish,rating
+0,17,1,Омск,1,0,1,1,0,0,1,1,special_secondary,0,"Обучаемость,JavaScript,jQuery,CSS,MySQL,HTML,PHP,Python,ООП,SQL,Linux,Ajax,Bootstrap,Apache HTTP Server,Java,MVC,Django Framework,Git,Laravel,Vue.js,Tailwind,Nginx,Redis,REST",1,0.4
+1,19,1,Москва,1,0,0,1,0,0,0,0,secondary,0,"Python,Java,SQLite,Flask,Socket,async.io,JavaFX",0,0.2
+2,21,1,Новосибирск,1,0,1,1,0,1,0,0,secondary,0,"C++,Java,Python,PostgreSQL,Git,Spring",0,0.3
+3,34,1,Калининград,1,0,1,1,1,1,0,0,higher,17,"Java,Spring Framework,PostgreSQL,Hibernate ORM,CSS,HTML,Git",0,1.0
+4,21,1,Москва,1,1,1,1,1,1,1,1,unfinished_higher,0,"Git,C#,Unity,Работа в команде,Oracle Pl/SQL,CMS Wordpress,Разработка компьютерных Игр,ООП,HTML,CSS,Java,Apache Maven,Spring Framework,Spring boot,Spring security,Spring data,Hibernate",2,0.3
+6,17,1,Москва,1,1,1,1,1,1,0,0,secondary,7,"Java,SQL,MySQL,PostgreSQL,Hibernate ORM,JBoss,Apache Tomcat,Apache Maven,Git,Design Patterns,Design Principles,Spring Framework,Spring Boot,Spring Data,Spring Security,Spring MVC,Spring Test",0,1.0
+7,33,1,Omsk,1,1,1,1,0,1,0,0,bachelor,151,"Java EE,SQL,JDBC,Apache Maven,Git,JUnit,Mockito,Английский язык,Немецкий язык,Spring Framework,Spring MVC",1,0.5
+8,36,1,Армавир,1,1,1,0,1,0,1,0,higher,157,"Java,Maven,Linux,ООП,Git,HTML5,CSS3,Hibernate ORM,MySQL/PostgreSQL(базовые запросы)",1,0.3
+16,21,1,Москва,1,1,1,1,1,1,0,1,unfinished_higher,9,"Git,Английский язык,C/C++,Linux,Java,Spring Framework,SQL,Hibernate ORM,Apache Maven,Gradle,JUnit,Spring MVC",0,0.2
+17,42,1,Новокузнецк,0,0,0,0,0,0,0,0,unfinished_higher,209,Обучаемость,1,0.2
+18,20,1,Казань,1,0,0,1,0,0,0,0,special_secondary,6,"Java,MS SQL,HTML,adb,emulator",0,0.3
+24,33,1,Калининград,1,0,1,0,0,0,0,0,unfinished_higher,18,"Git,Java Core,Java",0,0.3
+31,36,1,Воронеж,1,1,1,1,0,1,0,0,unfinished_higher,166,"Java Core,SQL,Git,Apache Maven,Spring Framework",0,0.2
+41,27,1,Екатеринбург,0,0,0,0,0,0,0,0,secondary,0,"Обучаемость,Ответственность",2,0.2
+47,28,1,Москва,1,1,1,1,1,0,1,0,unfinished_higher,52,"Ответственность,Пользователь ПК,Java,Git,ООП,SQL,Hibernate ORM,Apache Maven,JUnit,Log4j",2,0.2
+49,27,1,Москва,1,1,1,1,1,1,0,1,unfinished_higher,11,"HTML,CSS,Git,PostgreSQL,SpringBoot,Java,LibGDX,Maven,Hibernate,Thymeleaf,MySQL,Gradle,Spring MVC,Spring Security,Jms,Docker,RabbitMQ,JUnit",0,0.3
+55,20,1,Москва,0,0,0,0,0,0,0,1,bachelor,0,Обучаемость,1,0.2
+59,23,1,Тюмень,1,0,0,1,0,1,1,0,secondary,0,"Java,ООП,SQL,XML,JavaScript,Intellij IDEA,Spring Framework",0,0.2
+66,20,1,Барнаул,1,0,0,0,0,1,0,1,special_secondary,2,"Обучаемость,Java,spring,docker",1,0.2
+67,23,1,Вологда,1,1,1,1,0,0,1,0,bachelor,3,"ООП,Java,Основы Spring,Maven,Git,SQL,Java Core,Collections API,JDBC",1,0.2
+71,31,1,Санкт-Петербург,1,0,1,1,0,0,1,0,higher,87,"ООП,Java,Git,SQL,PostgreSQL",0,0.3
+72,41,1,Кинель,1,1,1,0,0,0,1,0,higher,182,"Организационные навыки,Работа в команде,ООП,HTML,CSS,Java,обучаемость,Git,Apache Maven,Intellij IDEA,Eclipse",3,0.7
+85,52,1,Сочи,1,1,1,1,0,0,0,0,higher,145,"Git,Java,Intellij IDEA,Apache Maven,JUnit,log4j2,XML,SQL,1С-Битрикс,CS-Cart,JavaScript,CSS3,Linux,JDBC,JMH",1,0.2
+91,22,1,Москва,1,0,1,1,0,1,0,0,bachelor,0,"Bash,Nginx,Android SDK,Android,Java,JavaScript,Kotlin,Git,SQL,Socket,Spring Framework,Oracle SQL,Docker",0,0.2
+93,29,1,Санкт-Петербург,1,1,1,1,1,1,0,0,secondary,26,"Java,Git,Maven,Spring Framework,Hibernate ORM,REST,SQL",0,0.2
+97,30,1,Москва,1,0,1,1,0,0,0,0,higher,64,"SQL,Git/GitHub,Java",0,0.2
+103,45,1,Москва,1,0,1,0,0,0,1,0,higher,279,"Java,Python,VBA,ООП,Git,Redmine",0,1.0
+105,22,1,Москва,1,0,1,1,0,1,1,1,unfinished_higher,0,"Работоспособность,Стрессоустойчивость,Программирование,Java,SQL,ООП,Git,Английский язык,Java SE,MySQL,PostgreSQL,XML,JDBC,JUnit,Spring Framework",3,0.2
+108,22,1,Казань,1,0,1,1,0,1,1,0,bachelor,2,"Java SE,Git,SQL,Java,Android,Android SDK,ООП,Java EE,REST,Spring Framework,Разработка ПО,HTML,CSS,C#,.NET Framework",1,0.3
+110,49,1,Сочи,0,0,0,0,0,0,0,1,higher,327,"Регистрация микрофинансовой компании,Регистрации кредитного кооператива,Ведение бухучета в микрофинансовой компании,Ведение бухучета в кредитном кооперативе,Сдача отчетности в Центральный банк России,Регистрация акционерного общества,Уверенный пользователь 1С бухгалтерия,Уверенный пользователь Сбис,знание законодательства в области микрокредитной, кооперативов,подготовка должностных инструкций,подготовка учредительных документов для нестандарных ситуаций,подготовка кредитных договоров,подготовка договоров вклада,СБиС,Банк-клиент,Отчетность в ПФР,расчет и регулировка экономических нормативов,планирование деятельности в том числе налоговое планирование,уверенный пользователь Exell, текстовых редакторов,Росфинмониторинг, формирование и отправка сообщений по 115-ФЗ,вступление в саморегулируемую организацию, подготовка требуемых документов,умение разговаривать по телефону, убеждать, вести аргументированную переписку,умение сформировать доказательную базу, ""сила аргументов"",умение вести аргументированную прееписку с госорганами,умение выступать в судебных заседаниях, поддерживать законные требования истца или ответчика,представительство в суде - финансовые и банковские споры,44-ФЗ,102-ФЗ Закон об ипотеке",28,0.2
+111,20,1,Санкт-Петербург,0,0,0,0,0,0,0,1,unfinished_higher,0,,0,0.5
+116,36,1,Алушта,1,1,0,1,1,1,0,0,higher,78,"Ajax,Hibernate ORM,Java,JavaScript,JDBC,JSP,Linux,MySQL,Spring Framework,Java EE,Apache Maven,JSON API",0,0.2
+119,31,1,Челябинск,1,0,0,0,0,0,0,0,higher,87,"Java,Python,Web Application Development,HTML,CSS3,Js",0,0.2
+120,32,1,Калуга,0,0,1,1,0,0,0,0,higher,102,"Qt,C/C++,Пользователь ПК,Английский язык,Поиск информации в интернет,Работа в команде,Работа с базами данных,Unix,SQL,QML,Python,visual studio code,Git",4,0.2
+123,34,1,Мураши,1,0,0,0,1,1,0,0,bachelor,96,"Java Servlets,Hibernate ORM,SOAP,REST,Spring Boot",0,0.3
+147,21,1,Таджикистан,0,0,0,0,0,0,0,0,bachelor,18,"Верстка,Веб-дизайн,Веб-программирование,Графический дизайн,фронтэнд разработка",5,0.2
+151,26,1,Полетаево (Челябинская область),1,0,1,0,0,1,0,0,bachelor,61,"Java,Git,Intellij IDEA,Spring Framework,Spring Data JPA",0,0.2
+162,27,1,Москва,1,0,1,1,0,0,0,0,higher,18,"C/C++,Visual Studio C#,Git,SQL,Java",0,0.3
+167,44,1,Нижний Тагил,0,0,1,1,0,0,0,0,higher,309,"владения ПК на уровне системного администратора,,знания методов монтажа, регулировки, наладки и ремонта оборудования,водительские права (категории В),React,Node.js,Express,JavaScript,HTML,CSS,Git,Django Framework,REST,Ajax,SQL",3,0.2
+172,48,1,Вейделевка,0,0,0,0,0,0,0,0,higher,56,"React, Redux",0,0.3
+173,39,1,Курган,1,1,1,1,1,1,0,0,higher,148,"Spring Framework,Java,Hibernate ORM,MySQL,Git,JSP,SQL,Apache Maven,Java EE,PostgreSQL,JUnit,JDBC,Ajax,Java Servlets,Spring Boot",0,0.2
+175,35,1,Санкт-Петербург,0,0,0,0,0,0,0,0,higher,140,Ответственность,1,0.2
+176,21,1,Алматы,1,1,1,1,0,0,1,1,unfinished_higher,0,"SQL,Maven,Git,Lombok,H2,Linux,ООП,MySQL,Java,PostgreSQL,JUnit",0,0.2
+183,23,1,Нижневартовск,1,0,1,1,0,0,0,0,bachelor,0,"Kotlin,Java,NodeJS,Python,Firebase,Git,Android,C++,SQL",0,0.2
+184,31,1,Ivanovo (Ivanovo Oblast),1,1,1,1,0,1,1,0,higher,131,"Исполнительность,Java SE,SQL,Git,ООП,Коммуникабельность,Oracle Pl/SQL,Git Bash,Intellij IDEA,GitHub,Apache Maven,JUnit,SQL Developer,Java EE,Eclipse,Spring Framework",2,0.2
+195,38,1,Ростов-на-Дону,1,1,1,1,0,0,1,0,special_secondary,13,"Java,XML,HTML,SQL,Git,Apache Maven,JUnit,Jackson,Postman,Ajax,jQuery,ООП,PostgreSQL,MVC,GWT",0,0.3
+199,28,1,Ставрополь,0,0,0,0,0,0,0,0,higher,71,"Adobe Photoshop,Продвинутый пользователь ПК,Начальные знания основ ООП,Базовые навыки программирования на Python,Базовые навыки программирования на Java,Базовые знания SQL,Базовые знания Java Swing,Начальные навыки программирования на C++",7,0.3
+209,31,1,Улан-Удэ,1,0,0,1,1,1,1,0,unfinished_higher,94,"Java,Spring Framework,PostgreSQL,Hibernate ORM,SQL,REST,ELK,ООП",0,0.2
+214,23,1,Липецк,1,0,1,0,0,0,1,1,unfinished_higher,0,"Исполнительность,JavaCore,Git,C++,1С программирование,ООП",2,0.2
+223,24,1,Волгоград,1,0,0,0,0,0,0,0,higher,34,"MS Office,Работа в команде,Excel,Java,Landmark",1,0.2
+246,32,1,Минск,0,0,0,0,0,0,0,0,secondary,65,Ответственность,1,0.2
+247,27,1,Нидерланды,1,0,0,1,0,1,0,1,unfinished_higher,0,"Обучаемость,Java,JavaScript,Spring Framework,CSS,HTML5,HTML,MySQL,Python,SQL",1,0.3
+248,27,1,Estonia,1,1,1,1,1,1,0,0,unfinished_higher,83,"Java,Stream API,Spring Framework,JPA,DATA JPA,JDBC,MVC,Java Servlets,Hibernate ORM,PostgreSQL,SQL,HSQLDB,Apache Tomcat,Apache Maven,Git,JSP,REST,JSON,JavaScript,jQuery,CSS,Bootstrap,HTML,XML",0,0.3
+257,20,1,Москва,1,0,1,1,0,0,0,1,bachelor,31,"C/C++,Python,Java,Git,MS Visual Studio,Intellij IDEA,C#,SQL",0,0.2
+269,29,1,Новосибирск,1,0,1,1,0,1,1,1,higher,72,"Java Core,SQL: DDL, DML,Git,Java: LibGDX,Java: JUnit 5 простые тесты,ООП,Spring: MVC, Boot",1,0.2
+287,32,1,Москва,1,0,1,1,0,0,0,0,higher,97,"SQL,HTML5,CSS3,Git,Java core",0,0.2
+289,27,1,Нур-Султан,1,0,1,1,0,0,0,0,bachelor,63,"Пользователь ПК,Грамотная речь,Работа в команде,Работа с большим объемом информации,Поиск информации в интернет,Инвентаризация,Intellij IDEA,C++,Java,XML,Android SDK,SQLite,Python,Git",6,0.2
+292,23,0,Новосибирск,0,0,0,0,0,0,0,1,bachelor,0,Работоспособность,1,0.2
+300,33,1,Барнаул,1,0,0,1,0,0,0,0,higher,42,"Java,Linux,Техническая поддержка,SQL",1,0.7
+305,37,1,Йошкар-Ола,0,0,0,0,0,0,0,0,higher,190,,0,0.2
+307,30,1,Кирово-Чепецк,0,0,1,1,0,0,0,0,secondary,90,"Git,MySQL,jQuery,HTML,CSS,PHP,Linux,Python,Nginx,Redis,RabbitMQ,Docker",0,0.7
+329,30,1,Испания,1,0,1,1,0,0,0,0,higher,91,"HTML,CSS,MySQL,Git,MS SQL,CRM,Shell,Typescript,PHP,Java EE,VueJS,Node.js,JNDI,JMS",0,0.2
+330,20,1,Санкт-Петербург,1,0,0,1,0,1,1,1,unfinished_higher,10,"Java,ООП,HTML,CSS,MySQL,SQL,Spring Framework,Английский язык",0,0.7
+337,36,1,Москва,1,1,1,1,0,0,0,0,higher,181,"Java SE,SQL,Git,Apache Maven,Linux,MS SQL Server,1С программирование,1с",2,0.2
+345,36,0,Пермь,1,0,1,1,0,0,0,1,special_secondary,84,"Язык программирования Java Core,HTML,CSS,JavaScript,Adobe Photoshop,SQL,MS SQL Server,Git,Немного PHP, C++, C#,jQuery,Java SE,Responsive,Pixel Perfect,Microsoft Access,Intellij IDEA,liquibase,jooq",2,0.2
+351,21,1,Гомель,1,1,1,1,0,0,0,0,unfinished_higher,11,"Java Core,MySQL,JDBC,Maven,Apache Tomcat,JSON API,XML,Gson API,Java Servlets,HTML,CSS,JavaScript,JaxB,MVC,JSTL,JSP,GDScript,Python,Git",0,0.2
+358,37,1,Нур-Султан,0,0,1,0,0,0,0,0,higher,171,https://github.com/altair1984/Cross_Zero.git,0,0.2
+359,25,0,Армения,1,1,1,1,1,1,0,0,higher,0,"Обучаемость,Java SE,Java EE,Java Servlets,JSP,Thymeleaf,JDBC,Hibernate ORM,Apache Maven,Apache Tomcat,Spring Framework,MySQL,MongoDB,Intellij IDEA,Git,HTML,CSS,SpringRest,SpringMVS",1,0.2
+360,33,1,Москва,1,0,0,1,0,0,0,0,higher,119,"MS SQL,JUnit,Java Core",0,0.3
+369,25,0,Омск,0,0,0,0,0,0,0,0,special_secondary,0,,0,0.2
+372,43,1,Новокузнецк,1,0,0,0,0,0,0,0,higher,261,"Java,1С: Управление Торговлей,Linux,TOR,Microtik,VPN,I2P,1C: Бухгалтерия,SAP R/3,ORACLE,1С: Комплексная автоматизация,1С программирование",4,0.2
+373,33,0,Харьков,1,1,1,1,1,1,0,0,master,13,"Java SE8,Spring Framework,MySQL,PostgreSQL,Apache Maven,Git,JSP,Apache Tomcat,jQuery,Java EE,Hibernate ORM,Atlassian Jira,vaadin,JavaScript,Ajax",0,0.2
+375,39,0,Чита,0,0,0,0,0,0,0,0,higher,195,"Java, Android, СУБД(MySQL, PostgreSQL)",1,0.2
+383,20,0,Сургут,0,0,0,0,0,0,0,0,special_secondary,0,,0,0.2
+389,20,1,Новороссийск,1,1,1,1,1,1,1,0,special_secondary,0,"Spring Framework,Java,Hibernate ORM,Apache Tomcat,Git,SQL,Apache Maven,PostgreSQL,ООП,REST,Spring Boot,Spring Security,Spring MVC",0,0.2
+393,41,1,Саранск,0,0,1,1,0,0,1,0,higher,142,"Python,JavaScript,C++,SQL,Git,XML,ООП,SVN,HTML,Управление проектами,Управление персоналом,Ведение переговоров,Управление продажами,Прямые продажи,Поиск и привлечение клиентов,Организаторские навыки",7,0.2
+395,34,1,Воткинск,1,1,1,1,0,1,1,0,higher,167,"Обучаемость,Ответственность,Коммуникабельность,Java,Spring Framework,Linux,JSP,PostgreSQL,HTML,JavaScript,MySQL,Python,ООП,Apache HTTP Server,Nginx,Администрирование серверов Linux,Администрирование серверов Windows,XML,SQL,Git,KVM,Windows 7,Active Directory,DHCP,Настройка DNS,CSS,Apache Maven,JUnit,.NET Framework,AngularJS",6,0.2
+402,31,0,Москва,1,0,1,1,0,1,1,0,higher,13,"Git,Java,MySQL,ООП,Spring Framework,Linux,XML,1С программирование,1С администрирование,1С Бухгалтерия,1С: Управление Торговлей,1С УНФ,1С: Розница",6,0.2
+405,25,1,Москва,1,0,1,0,0,0,1,0,higher,55,"Java,ООП,Git",0,0.2
+408,24,0,Улан-Удэ,0,0,1,1,0,0,1,0,unfinished_higher,0,"C++,ООП,Git,C#,SQL,3ds Max",0,0.2
+410,22,1,Москва,1,1,1,1,1,1,0,1,bachelor,0,"Java EE,Java SE,Git,Apache Maven,Hibernate ORM,PostgreSQL,XML,JDBC,Apache Tomcat,Spring Framework",0,0.2
+417,19,1,Уфа,1,0,1,1,0,0,0,0,secondary,0,"C#,Java,PostgreSQL,Git",0,0.2
+419,24,1,Голицыно,1,0,1,1,0,0,1,0,unfinished_higher,0,"Django Framework,Python,JavaScript,MySQL,HTML,CSS,Git,Linux,HTML5,Nginx,C++,XML,ООП,Bootstrap,React Framework,Docker,Java",0,0.3
+420,19,1,Москва,0,0,0,0,0,0,0,1,unfinished_higher,0,"Обучаемость,Адаптивность,Целеустремленность,Аналитический склад ума",4,0.2
+437,33,1,Москва,0,0,0,0,0,0,0,0,candidate,131,,0,0.2
+448,39,1,Одесса,0,0,0,0,0,0,0,0,higher,210,"Windows, Linux, MS Office, знание C++, Java, HTML, PHP и принципы ООП Есть опыт работы с электронико,Настройка сетевых подключений,Linux,Администрирование сетевого оборудования,Администрирование серверов Windows,HTML,Ремонт ПК,Настройка ПК,Заключение договоров,TCP/IP,Монтаж оборудования,Техническая эксплуатация,Настройка ПО,Windows 7,Wifi networks,Настройка серверов,Информационные технологии,Техническое обслуживание,Техническая поддержка,Администрирование,Поиск информации в интернет,Консультирование,Контроль исправности оборудования,Objective-C,Python,Unity (C#),PyCharm,X-Code",18,0.2
+466,28,1,Новосибирск,1,0,1,1,0,1,1,0,bachelor,59,"MS SQL,Cистемы управления базами данных,Java SE,Spring Framework,Java,ООП,Git,Английский язык,HTML,XML,PostgreSQL,SQL",1,0.2
+467,19,0,Екатеринбург,0,0,0,0,0,0,0,0,secondary,0,"Ответственность,Разработка (beck-end)различных проектов на java",2,0.3
+476,38,1,Москва,1,1,1,1,1,1,0,0,candidate,152,"Java,SQL,Spring,Hibernate,Maven,Git",0,0.2
+480,44,1,Москва,1,1,1,1,0,0,1,0,higher,8,"SQL,Тестирование,Java,Git,ООП,Intellij IDEA,Apache Maven,java core",1,0.3
+486,22,1,Москва,0,0,0,0,0,0,0,1,unfinished_higher,0,"Обучаемость,Упорство,C++,Python",2,0.3
+493,38,1,Чита,0,0,1,0,0,0,0,0,higher,211,"JS Native,NODE.js, REST API,основы TypeScript,ESLint,Webpack,HTML, CSS (SCSS/SASS),Git,Экономический анализ,Договорная работа,Закупки,Сметы,Биржевые торги,Figma",6,0.2
+505,30,1,Пермь,1,0,1,0,0,0,0,1,unfinished_higher,98,"Java Core,Git",0,0.2
+507,31,0,Москва,1,1,1,1,1,1,0,0,higher,20,"Java,Apache Maven,Hibernate ORM,PostgreSQL,Apache Tomcat,JUnit,Intellij IDEA,JDBC,JSON API,Git,Spring Framework",0,0.3
+512,31,1,Алматы,1,0,1,1,0,0,1,0,bachelor,62,"Java,ООП,SQL,XML,HTML,CSS,Git,Gradle",0,0.2
+513,31,0,Новосибирск,0,0,1,0,0,0,0,0,unfinished_higher,86,"HTML,CSS,JavaScript,Git,С,C++,Python,Linux,Haskell",1,0.2
+515,23,1,Санкт-Петербург,1,1,1,1,1,1,1,1,unfinished_higher,84,"Java,Java SE,Java EE,SQL,JDBC,PostgreSQL,Hibernate ORM,JSP,Java Servlets,Apache Tomcat,Apache Maven,Git,Linux,Spring Boot,JSF,JavaScript,HTML,CSS,ООП",0,0.2
+517,22,1,Андижан,1,0,0,0,0,1,0,0,higher,22,"PHP,Yii,Java,HTML,HTML5,CSS3,JavaScript,Веб-программирование,Spring Framework,Spring boot",1,0.3
+518,23,1,Алчевск,1,1,0,1,0,0,0,1,master,19,"Java,SQL,Apache Maven,Gradle,HTML5,CSS3",0,0.2
+528,23,1,Армавир,1,1,1,1,0,0,1,1,unfinished_higher,0,"PHP,JavaScript,Git,HTML,jQuery,SQL,CSS,Laravel,Vue,MySQL,Linux,MVC,ООП,Ajax,ORM,Nginx,Java,Maven,C++,Qt,C#,ASP.NET",0,0.3
+530,37,1,Екатеринбург,1,0,0,1,0,0,1,0,higher,43,"Аналитический склад ума,Английский язык,Java,SQL,PostgreSQL,Intellij IDEA,ООП,Business Intelligence Systems,Design Patterns",1,1.0
+531,32,0,Санкт-Петербург,1,0,0,1,1,1,1,0,higher,68,"Java 8,Spring Framework,Hibernate ORM,HTML,SQL,CSS,Java,PostgreSQL,Linux,Ajax,ООП",0,0.7
+532,34,0,Подольск (Московская область),1,0,0,1,0,0,1,0,higher,160,"Borland Delphi,Си,Java,C++,MySQL,Java SE,Pascal,ООП,JavaScript,React,Redux",1,0.7
+533,25,1,Наро-Фоминск,0,0,0,0,0,0,0,0,secondary,0,,0,0.7
+534,22,1,Зеленодольск (Республика Татарстан),1,0,1,1,0,1,1,0,unfinished_higher,0,"Java,PostgreSQL,Git,Spring Framework,ООП,Английский язык",0,0.7
+535,30,0,Ростов-на-Дону,1,1,0,1,1,1,1,0,higher,106,"Java,Spring Framework,Hibernate ORM,SQL,JUnit,Apache Maven,Linux,ООП,HTML,CSS,JavaScript",0,1.0
+542,23,1,Омск,1,0,1,1,1,0,1,0,higher,0,"Ответственность,Intellij IDEA,Java,Git,MySQL,Hibernate ORM,Linux,ООП,JavaScript,Java SE,Коммуникабельность,Обучаемость,Внимательность,Креативность",5,0.2
+554,19,1,Almaty,1,0,0,0,0,0,0,1,higher,11,"Обучаемость,Python,C++,C,Java,Algorithms,Problem-solving",1,0.2
+561,24,1,Санкт-Петербург,1,1,1,1,0,0,0,0,unfinished_higher,0,"Java,HTML,CSS,SQL,Git,Apache Maven",0,0.2
+565,32,1,Москва,1,0,0,0,0,0,0,0,higher,164,"Java,NetBeans,Java SE,C/C++,C#,MS Visual Basic,Unity Pro XL,Simatic PCS 7,Proficy iFIX,GENESIS32,SCADA Infinity,ABB Industrial IT System 800xA,CODESYS,Concept XL",0,0.3
+573,19,1,Москва,1,0,0,1,0,0,1,1,unfinished_higher,0,"Исполнительность,Аналитический склад ума,Алгоритмизированный подход,Упорство,Умение работать в команде,Java,Android SDK,C++,Python,SQL,ООП",5,0.2
+579,19,1,Алматы,0,0,0,0,0,0,0,1,bachelor,0,"Обучаемость,Настойчивость",2,0.2
+585,22,0,Красноярск,0,0,0,1,0,0,0,1,unfinished_higher,0,"Грамотная речь,Работа в команде,C#,ASP.NET,Python,Django,SQL,HTML,Алгоритмы,Математика,Scrum,WPF,Windows Forms,XAML,C++,Qt",4,0.3
+587,23,1,Алматы,1,0,1,1,1,1,1,0,secondary,8,"React,JUnit,Git,Алгоритмы и Структуры данных,Linux,ООП,CSS,JavaScript,SQL,Java,HTML5,Spring,Hibernate ORM,ElasticSearch,PostgreSQL",1,0.3
+595,34,1,Samarkand,1,1,1,0,1,1,1,0,higher,62,"Java,Java SE,Intellij IDEA,Git,Linux,ООП,Chronicle,Docker,HFT,Design Patterns,Gradle,Maven,JavaFX,Spring Framework,Hibernate ORM,CSS3,HTML,JavaScript,ReactJS,Sass,Spring Boot,Swagger,REST,SOAP,Jitwatch,JMH,Quarkus,Wiremock,TeamCity,Jenkins",0,0.2
+608,31,1,Москва,1,0,0,0,0,0,0,0,higher,158,"Автоматизация процессов,АСУ,АСУ ТП,ПЛК,GE,Локальные сети,Python,Data science,Java",5,0.3
+609,38,1,Иваново (Ивановская область),1,1,1,1,0,0,1,0,higher,185,"Linux,Python,MySQL,Java,ООП,Git,Apache Maven",0,0.2
+619,30,1,Саратов,1,0,0,1,0,0,0,0,higher,60,"Аудит безопасности,Осваиваю все новое,Коммуникабельность,Аналитические исследования,Стремление к совершенствованию,Работа с большим объемом информации,Информационная безопасность,Целеустремленность,Работа в команде,Адаптируюсь к различным условиям,Теханализ,Криптография,Организаторские навыки,Разработка должностных инструкций,Мотивация персонала,Управление интернет-проектами,SQL,Программирование,Клиентоориентированность,HP Service Manager,Active Directory,Java,Python",18,0.2
+623,34,1,Алматы,1,1,1,1,1,1,0,0,special_secondary,5,"Ответственность,Коммуникабельность,Java,Spring,Java SE,Java EE,Spring Framework,Spring Boot,Hibernate,Git,HTML,PostgreSQL,CSS,Hibernate ORM,Apache Tomcat,Apache Maven,REST API,Gradle,Java Servlets,Docker,React.js",2,0.2
+628,28,0,Партизанск,0,0,0,1,0,0,0,0,higher,67,"Настройка ПК,Настройка сетевых подключений,Настройка ПО,Ремонт ПК,Сборка ПК,Windows 7,Windows Xp,Администрирование серверов Windows,Техническое обслуживание,MS Outlook,Прокладка кабелей,TCP/IP,DHCP,Локальные сети,Автоматизированное рабочее место (АРМ),HTML,CSS,SQL,Python,MySQL,Oracle 11I",10,0.2
+641,37,0,Калининград,1,1,1,1,1,1,0,0,special_secondary,94,"JSON API,HTML,CSS,Apache Tomcat,JSP,Java Servlets,PostgreSQL,Git,Linux,Logging,JCF,Java Core,XML,Hibernate ORM,TestNG,Selenium,GWT,Glassfish server,Spring Framework,Gradle,Liquibase,Apache Maven",0,0.2
+647,24,1,Нижний Тагил,1,1,0,1,1,1,1,1,bachelor,104,"Java SE,ООП,Java EE,Spring Framework,Hibernate ORM,Apache Tomcat,Spring MVC,Spring Security,JDBC,АОП,MySQL,SQL,JSP,Java Servlets,Apache Maven",1,0.2
+662,28,1,Москва,1,1,1,1,0,0,1,1,bachelor,22,"Обучаемость,SQL,Java,Apache Maven,Git,HTML,ООП,CSS,SAP ERP",1,0.5
+663,31,1,Москва,0,0,0,0,0,0,0,0,higher,117,,0,0.3
+667,21,1,Москва,1,1,1,1,1,1,1,1,unfinished_higher,8,"PostgreSQL,Java,Java SE,Git,SQL,Hibernate ORM,Spring Framework,Spring,Английский язык,Java Core,Java Collections,Spring Data Jpa,Spring Boot,Spring REST,REST,JWT,JUnit,Mockito,Swagger,Java Stream API,H2,Maven,ООП,JSON,UML,MySQL",0,0.2
+668,23,1,Москва,1,0,1,1,0,0,0,1,higher,0,"SQL,C#,Java,ASP.NET,Git",0,0.2
+673,28,1,Великий Новгород,1,0,0,0,0,0,0,0,special_secondary,43,"Java,Английский язык,Поиск информации в интернет,Работа с базами данных,Исполнительность,Ответственность,Intellij IDEA",4,0.2
+678,30,0,Брянск,1,0,1,1,0,0,1,0,master,67,"C/C++,CMake,MS Visual Studio,JavaScript,React,HTML,CSS,Английский язык,ООП,Git,Mercurial,Работа в команде,Linux,Apache HTTP Server,Nginx,MySQL,PostgreSQL,Qt,Django Framework,Flask,Vue,Python,Pandas,Scikit-Learn,Matplotlib,NumPy,SciPy,Docker,Java,Keras",1,0.2
+708,31,1,Москва,1,0,1,1,0,0,0,0,higher,315,"Обучаемость,Большой опыт в проектирования сложных комплексов,Java,SQL,Github",2,0.3
+711,23,1,Рыбинск,0,0,0,0,0,0,0,1,unfinished_higher,0,"Обучаемость,Умение доводить дело до конца",2,0.4
+726,20,1,Томск,0,0,0,0,0,0,0,1,unfinished_higher,0,"Исполнительность,Решительность,Ответственность",3,0.2
+727,21,1,Актобе,1,0,0,1,0,0,0,1,unfinished_higher,0,"Работоспособность,C/C++,HTML,JavaScript,MySQL,CSS,Python,jQuery,Java,Node.js",1,0.2
+731,28,1,Москва,1,1,1,1,1,1,0,0,higher,82,"Java core,Java 8,SQL,Oracle DB,JDBC,JPA,Hibernate ORM,Spring Core,Spring MVC,Spring Boot,Java Servlets,JUnit,Mockito,WireMock,Apache Maven,Git,Swagger,Docker",0,0.2
+732,36,1,Киров (Кировская область),1,1,1,1,1,1,1,0,higher,172,"Spring Framework,Hibernate ORM,Java EE,Linux,MySQL,PostgreSQL,Git,Apache Maven,Intellij IDEA,NetBeans,HTML,CSS,ООП,Java SE",0,0.7
+736,31,1,Обнинск,1,0,1,0,0,0,0,1,unfinished_higher,0,"Java SE,Английский язык,Git,Java,jira",0,0.2
+738,24,1,Архангельск,1,0,1,1,1,1,1,0,bachelor,2,"Java Core,Git,SQL,ООП,Java,Английский язык,Spring Boot,Hibernate,MySQL,REST",0,0.2
+744,24,1,Ташкент,0,0,0,0,0,0,0,0,bachelor,15,"Работоспособность,аккуратность,вежливость,старательность,стремительность",5,0.3
+751,19,1,Турция,1,1,1,1,0,1,0,0,special_secondary,6,"Java,HTML,CSS,MySQL,SQL,Git,Linux,PHP,Spring Framework,PostgreSQL,JavaScript,Laravel,Apache Maven,JUnit,Bash,Vue.js,MongoDB,REST,JSON API,HTTP",0,0.2
+752,25,1,Москва,1,1,1,1,0,1,1,1,higher,3,"Java,Git,ООП,Spring Framework,PostgreSQL,Apache Maven,Linux,Python,C++,Maven,Unit Testing,Docker",0,0.7
+753,22,1,Химки,1,0,1,1,0,0,0,1,unfinished_higher,0,"Исполнительность,SQL,Java,Linux,Python,Git",1,0.4
+754,28,0,Москва,0,0,0,0,0,0,0,0,master,68,C/C++,0,0.5
+755,19,1,Москва,1,1,1,1,0,1,1,1,unfinished_higher,0,"Java,HTML,Spring Framework,SQL,ООП,MySQL,Git,Apache Maven,Gradle,PostgreSQL,CSS,Грамотность",1,0.4
+756,21,1,Москва,0,0,0,0,0,0,0,1,unfinished_higher,0,Исполнительность,1,0.4

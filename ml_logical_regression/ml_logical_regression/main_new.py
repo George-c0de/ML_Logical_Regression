@@ -1,4 +1,9 @@
+import os
 import warnings
+
+import joblib
+from imblearn.over_sampling import BorderlineSMOTE
+
 warnings.filterwarnings("ignore", message="Found unknown categories in columns.*")
 
 import numpy as np
@@ -8,7 +13,12 @@ import seaborn as sns
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, MultiLabelBinarizer
+from sklearn.preprocessing import (
+    StandardScaler,
+    OneHotEncoder,
+    MultiLabelBinarizer,
+    PolynomialFeatures,
+)
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
@@ -25,7 +35,6 @@ from sklearn.metrics import (
     fbeta_score,
     make_scorer
 )
-from imblearn.over_sampling import BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.impute import SimpleImputer
 
@@ -318,8 +327,12 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     grid_search.fit(X_train, y_train)
     print("Лучший скорер:", grid_search.best_score_, grid_search.best_params_)
     logger.info("[70%] Обучение модели завершено.")
+    best_pipeline = grid_search.best_estimator_
+    logreg_model = best_pipeline.named_steps["classifier"]
 
-
+    # Сохраняем модель в файл
+    os.makedirs("models", exist_ok=True)
+    joblib.dump(logreg_model, "models/logreg_model.pkl")
 
     # Предсказания при пороге 0.5
     y_pred = grid_search.predict(X_test)
@@ -332,16 +345,21 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     # 2) На тренировочном наборе
     y_pred_train = grid_search.predict(X_train)
     cm_train = confusion_matrix(y_train, y_pred_train)
-    ll_train = log_loss(y_train, y_pred_train)
+    y_proba_train = grid_search.predict_proba(X_train)[:, 1]
+    ll_train = log_loss(y_train, y_proba_train)
 
-    # 3) На всём датасете (train + test)
     x_full = pd.concat([X_train, X_test], ignore_index=True)
     y_full = np.concatenate([y_train, y_test])
+
+    # предсказания и вероятности
     y_pred_full = grid_search.predict(x_full)
+    y_proba_full = grid_search.predict_proba(x_full)[:, 1]
+
+    # матрица ошибок
     cm_full = confusion_matrix(y_full, y_pred_full)
-    ll_full = log_loss(y_full, y_pred_full)
 
-
+    # корректный расчёт log loss на всём датасете
+    ll_full = log_loss(y_full, y_proba_full)
 
     plot_f2_vs_threshold(y_test, y_proba)
 
