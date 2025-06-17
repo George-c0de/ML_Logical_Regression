@@ -3,6 +3,7 @@ import warnings
 
 import joblib
 from imblearn.over_sampling import BorderlineSMOTE
+from joblib import load
 
 warnings.filterwarnings("ignore", message="Found unknown categories in columns.*")
 
@@ -17,7 +18,6 @@ from sklearn.preprocessing import (
     StandardScaler,
     OneHotEncoder,
     MultiLabelBinarizer,
-    PolynomialFeatures,
 )
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -50,9 +50,11 @@ logger = logging.getLogger(__name__)
 
 # ============ ПАРАМЕТРЫ ============
 DATA_PATH = "../../Data/dataNew.csv"
+MODEL_PATH = "models/logreg_model.pkl"
 RATING_THRESHOLD = 0.1
 TEST_SIZE = 0.4
 RANDOM_STATE = 1000
+IS_DOWLOADING = True
 
 # Новые бизнес-метрики:
 # 1) DESIRED_ACCEPTANCE_RATE -> хотим, чтобы (TP / (TP+FN)) * 100% >= этого значения
@@ -72,7 +74,13 @@ LOGREG_PARAMS = {
     "classifier__class_weight": [None, "balanced"]
 }
 
-
+def load_trained_model(path: str = MODEL_PATH):
+    """
+    Загружает сохранённую модель (или pipeline).
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Модель не найдена по пути: {path}")
+    return load(path)
 # ============ ФУНКЦИИ ЗАГРУЗКИ И ПРЕДОБРАБОТКИ ДАННЫХ ============
 def load_data(path: str = DATA_PATH) -> pd.DataFrame:
     """
@@ -324,6 +332,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     )
 
     logger.info("[40%] Начало обучения модели с GridSearchCV (F2)...")
+
     grid_search.fit(X_train, y_train)
     print("Лучший скорер:", grid_search.best_score_, grid_search.best_params_)
     logger.info("[70%] Обучение модели завершено.")
