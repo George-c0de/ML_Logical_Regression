@@ -1,5 +1,7 @@
+import csv
 import os
 import warnings
+from datetime import datetime
 
 import joblib
 from imblearn.over_sampling import BorderlineSMOTE
@@ -50,12 +52,14 @@ logger = logging.getLogger(__name__)
 
 # ============ ПАРАМЕТРЫ ============
 DATA_PATH = "../../Data/dataNew.csv"
-MODEL_PATH = "models/logreg_model.pkl"
+
 RATING_THRESHOLD = 0.1
 TEST_SIZE = 0.4
 RANDOM_STATE = 1000
 IS_DOWLOADING = True
 
+
+MODEL_PATH = f"models/logreg_model_{str(TEST_SIZE).replace('.', '_')}_{str(RATING_THRESHOLD).replace('.', '_')}_{DATA_PATH[8:20].replace('/', '_').replace('.','_')}.pkl"
 # Новые бизнес-метрики:
 # 1) DESIRED_ACCEPTANCE_RATE -> хотим, чтобы (TP / (TP+FN)) * 100% >= этого значения
 # 2) DESIRED_INTERVIEWS_REDUCTION -> хотим, чтобы (FP / (TP+FP)) * 100% <= этого значения
@@ -245,6 +249,279 @@ def find_best_threshold_f2(y_true: np.ndarray, y_proba: np.ndarray, step: float 
 
 
 # ============ ФУНКЦИИ МОДЕЛИРОВАНИЯ И ОЦЕНКИ ============
+def evaluate_pipeline(pipeline, X_train, y_train, X_test, y_test) -> None:
+    """
+    Оценивает переданный pipeline на данных и выводит метрики:
+      - Accuracy, Precision, Recall, F1, F2, ROC AUC
+      - Процент принятых хороших (Recall)
+      - Процент лишних собеседований (FP / (TP+FP))
+      - Сравнение с целевыми бизнес-метриками
+    """
+    # Предсказания при пороге 0.5
+    y_pred = pipeline.predict(X_test)
+    y_proba = pipeline.predict_proba(X_test)[:, 1]
+    # --- Confusion matrices for train, test and full datasets ---
+    # 1) На тестовом наборе (вы уже вычислили выше)
+    cm_test = confusion_matrix(y_test, y_pred)
+    ll_test = log_loss(y_test, y_proba)
+
+    # 2) На тренировочном наборе
+    y_pred_train = pipeline.predict(X_train)
+    cm_train = confusion_matrix(y_train, y_pred_train)
+    y_proba_train = pipeline.predict_proba(X_train)[:, 1]
+    ll_train = log_loss(y_train, y_proba_train)
+
+    x_full = pd.concat([X_train, X_test], ignore_index=True)
+    y_full = np.concatenate([y_train, y_test])
+
+    # предсказания и вероятности
+    y_pred_full = pipeline.predict(x_full)
+    y_proba_full = pipeline.predict_proba(x_full)[:, 1]
+
+    # матрица ошибок
+    cm_full = confusion_matrix(y_full, y_pred_full)
+
+    # корректный расчёт log loss на всём датасете
+    ll_full = log_loss(y_full, y_proba_full)
+
+    plot_f2_vs_threshold(y_test, y_proba)
+
+    # Подбираем оптимальный порог под F2
+    best_threshold = find_best_threshold_f2(y_test, y_proba, step=0.01)
+    y_pred_best = (y_proba >= best_threshold).astype(int)
+
+    # 4) Выводим все три матрицы ошибок
+    print(f"=== Confusion Matrix: Training Set (threshold={y_pred_best}) ===")
+    print(cm_train)
+    print(f"Log Loss: {ll_test:.4f}\n")
+    print(f"=== Confusion Matrix: Test Set (threshold={y_pred_best}) ===")
+    print(cm_test)
+    print(f"Log Loss: {ll_train:.4f}\n")
+    print(f"=== Confusion Matrix: All Data (threshold={y_pred_best}) ===")
+    print(cm_full)
+    print(f"Log Loss: {ll_full:.4f}\n")
+
+    # Метрики при пороге best_threshold
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred, zero_division=0.0)
+    rec = recall_score(y_test, y_pred, zero_division=0.0)
+    f1 = f1_score(y_test, y_pred)
+    f2 = fbeta_score(y_test, y_pred, beta=2, zero_division=0)
+    ll = log_loss(y_test, y_proba)
+    roc_auc = roc_auc_score(y_test, y_proba)
+    balanced_acc = balanced_accuracy_score(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred)
+
+    # Метрики при оптимальном пороге
+    acc_best = accuracy_score(y_test, y_pred_best)
+    prec_best = precision_score(y_test, y_pred_best, zero_division=0.0)
+    rec_best = recall_score(y_test, y_pred_best, zero_division=0.0)
+    f1_best = f1_score(y_test, y_pred_best)
+    f2_best = fbeta_score(y_test, y_pred_best, beta=2, zero_division=0)
+    balanced_acc_best = balanced_accuracy_score(y_test, y_pred_best)
+    cm_best = confusion_matrix(y_test, y_pred_best)
+
+    cls_report = classification_report(y_test, y_pred, zero_division=0.0)
+    cls_report_best = classification_report(y_test, y_pred_best, zero_division=0.0)
+
+    # Расчёт бизнес-метрик
+    TN, FP, FN, TP = cm.ravel()
+    TN_b, FP_b, FN_b, TP_b = cm_best.ravel()
+
+    good_acceptance_rate_05 = (TP / (TP + FN) * 100) if (TP + FN) > 0 else 0.0
+    good_acceptance_rate_best = (TP_b / (TP_b + FN_b) * 100) if (TP_b + FN_b) > 0 else 0.0
+
+    extra_interviews_rate_05 = (FP / (TP + FP) * 100) if (TP + FP) > 0 else 0.0
+    extra_interviews_rate_best = (FP_b / (TP_b + FP_b) * 100) if (TP_b + FP_b) > 0 else 0.0
+
+    def compare_metric(metric_value: float, desired_value: float, metric_name: str, higher_is_better=True):
+        """
+        Сравнивает метрику с целевым значением.
+        Если higher_is_better=True, хотим metric_value >= desired_value.
+        Если False, хотим metric_value <= desired_value.
+        """
+        if higher_is_better:
+            if metric_value >= desired_value:
+                return f"{metric_name} {metric_value:.2f}% (Достигнута/Превышена цель {desired_value:.2f}%)"
+            else:
+                return f"{metric_name} {metric_value:.2f}% (Ниже желаемой цели {desired_value:.2f}%)"
+        else:
+            if metric_value <= desired_value:
+                return f"{metric_name} {metric_value:.2f}% (Достигнута/Превышена цель {desired_value:.2f}%)"
+            else:
+                return f"{metric_name} {metric_value:.2f}% (Выше допустимой цели {desired_value:.2f}%)"
+
+    # Формируем вывод
+    results = (
+        "=== Итоговая оценка модели (стандартный порог = 0.5) ===\n"
+        f"Accuracy:           {acc:.3f}\n"
+        f"Precision:          {prec:.3f}\n"
+        f"Recall:             {rec:.3f}\n"
+        f"F1-score:           {f1:.3f}\n"
+        f"F2-score:           {f2:.3f}\n"
+        f"Balanced Accuracy:  {balanced_acc:.3f}\n"
+        f"ROC AUC:            {roc_auc:.3f}\n"
+        f"Log-loss:           {ll:.3f}\n"
+        f"Confusion Matrix:\n{cm}\n"
+        f"Classification Report:\n{cls_report}\n"
+        "--- Новые бизнес-метрики (порог 0.5) ---\n"
+        f"Good Acceptance Rate (Recall):  {good_acceptance_rate_05:.2f}%\n"
+        f"Extra Interviews Rate:          {extra_interviews_rate_05:.2f}%\n"
+        f"{compare_metric(good_acceptance_rate_05, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', True)}.\n"
+        f"{compare_metric(extra_interviews_rate_05, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', False)}.\n"
+        "----------------------------------------------------------\n"
+        f"=== Оценка модели при оптимальном пороге (threshold = {best_threshold:.2f}) ===\n"
+        f"Accuracy:           {acc_best:.3f}\n"
+        f"Precision:          {prec_best:.3f}\n"
+        f"Recall:             {rec_best:.3f}\n"
+        f"F1-score:           {f1_best:.3f}\n"
+        f"F2-score:           {f2_best:.3f}\n"
+        f"Balanced Accuracy:  {balanced_acc_best:.3f}\n"
+        f"Confusion Matrix:\n{cm_best}\n"
+        f"Classification Report:\n{cls_report_best}\n"
+        "--- Новые бизнес-метрики (оптимальный порог) ---\n"
+        f"Good Acceptance Rate (Recall):  {good_acceptance_rate_best:.2f}%\n"
+        f"Extra Interviews Rate:          {extra_interviews_rate_best:.2f}%\n"
+        f"{compare_metric(good_acceptance_rate_best, DESIRED_ACCEPTANCE_RATE, 'Good Acceptance Rate', True)}.\n"
+        f"{compare_metric(extra_interviews_rate_best, DESIRED_INTERVIEWS_REDUCTION, 'Extra Interviews Rate', False)}.\n"
+    )
+
+    print(results)
+    logger.info("[100%] Оценка модели завершена.")
+
+    # ROC-кривая
+    # === Важность признаков ===
+    # Достаём имена признаков из препроцессора
+    # (нужно, чтобы соответствовать OneHot-признакам и числовым)
+    try:
+        ohe = pipeline.named_steps['preprocessor'] \
+                 .named_transformers_['cat'] \
+                 .named_steps['onehot']
+        # числовые фичи:
+        num_feats = pipeline.named_steps['preprocessor'].transformers_[0][2]
+        categorical_features = pipeline.named_steps['preprocessor'].transformers_[1][2]
+        # OHE-фичи:
+        cat_feats = ohe.get_feature_names_out(categorical_features).tolist()
+        all_features = list(num_feats) + cat_feats
+        coefs = pipeline.named_steps['classifier'].coef_[0]
+        fi = pd.DataFrame({
+            'feature': all_features,
+            'coef': coefs
+        })
+        fi['abs_coef'] = fi['coef'].abs()
+        fi = fi.sort_values('abs_coef', ascending=False).head(10)
+        # Печать таблицы важных фичей
+        print("=== Top-10 важнейших признаков ===")
+        print(fi[['feature', 'coef']].to_string(index=False))
+        # График важности
+        plt.figure(figsize=(8, 6))
+        plt.barh(fi['feature'], fi['coef'])
+        plt.xlabel("Коэффициент логистической регрессии")
+        plt.title("Топ-10 признаков по абсолютной важности")
+        plt.gca().invert_yaxis()
+        plt.tight_layout()
+        plt.show()
+    except Exception as e:
+        logger.warning(f"Не удалось отобразить важность признаков: {e}")
+    plt.figure(figsize=(8, 6))
+    fpr, tpr, _ = roc_curve(y_test, y_proba)
+    plt.plot(fpr, tpr, label=f"ROC curve (AUC = {roc_auc:.3f})")
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC-кривая")
+    plt.legend(loc="lower right")
+    plt.grid(True)
+    plt.show()
+    specificity_best = (TN_b / (TN_b + FP_b)) if (TN_b + FP_b) > 0 else 0.0
+    # --- Сохраняем метрики в файл metrics_log.csv ---
+    metrics_file = "metrics_log.csv"
+    # Собираем словарь метрик
+    metrics_row = {
+        "timestamp": datetime.now().isoformat(),
+        "threshold_data": RATING_THRESHOLD,
+        "dataset": DATA_PATH,
+        "test_site": TEST_SIZE,
+        "threshold": best_threshold,
+        "accuracy": acc_best,
+        "precision": prec_best,
+        "recall": rec_best,
+        "f1_score": f1_best,
+        "f2_score": f2_best,
+        "balanced_accuracy": balanced_acc_best,
+        "roc_auc": roc_auc,
+        "log_loss": ll,
+        "good_acceptance_rate": good_acceptance_rate_best,
+        "extra_interviews_rate": extra_interviews_rate_best,
+        "specificity": specificity_best,
+    }
+    a = list(metrics_row.keys())
+    # Проверяем, нужно ли писать заголовок
+    write_header = False
+    with open(metrics_file, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(metrics_row.keys()))
+        if write_header:
+            writer.writeheader()
+        writer.writerow(metrics_row)
+    logger.info(f"Метрики добавлены в {metrics_file}")
+
+
+# ==== PIPELINE BUILDERS ====
+
+# Preprocessor builder for categorical/numerical features
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', Pipeline(steps=[
+            ('imputer', SimpleImputer(strategy='median')),
+            ('scaler', StandardScaler())
+        ]), []),  # will be set later
+        ('cat', Pipeline(steps=[
+            ('imputer', SimpleImputer(strategy='most_frequent')),
+            ('onehot', OneHotEncoder(drop='first', handle_unknown='ignore'))
+        ]), [])  # will be set later
+    ],
+    remainder='passthrough'
+)
+
+def run_with_downloaded_model():
+    # 1. Загрузка и предобработка данных
+    df_raw = load_data()
+    df = data_processing(df_raw, rating_threshold=RATING_THRESHOLD)
+    y = df['rating'].values
+    X = df.drop(columns='rating')
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
+    )
+    # 2. Определяем признаки и создаём препроцессор
+    numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
+    categorical_features = [c for c in ['education_level', 'specialty', 'city'] if c in X_train.columns]
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='median')),
+                ('scaler', StandardScaler())
+            ]), numerical_features),
+            ('cat', Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('onehot', OneHotEncoder(drop='first', handle_unknown='ignore'))
+            ]), categorical_features)
+        ],
+        remainder='passthrough'
+    )
+    # 3. Фитим препроцессор на тренировочных данных
+    preprocessor.fit(X_train)
+
+    # 4. Загружаем классификатор и собираем Pipeline для оценки
+    clf = load_trained_model()
+    eval_pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('classifier', clf)
+    ])
+    logger.info("Using downloaded classifier for evaluation.")
+
+    # 5. Оцениваем
+    evaluate_pipeline(eval_pipeline, X_train, y_train, X_test, y_test)
+
 def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
                              X_test: pd.DataFrame, y_test: np.ndarray) -> None:
     """
@@ -341,7 +618,7 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
 
     # Сохраняем модель в файл
     os.makedirs("models", exist_ok=True)
-    joblib.dump(logreg_model, "models/logreg_model.pkl")
+    joblib.dump(logreg_model, MODEL_PATH)
 
     # Предсказания при пороге 0.5
     y_pred = grid_search.predict(X_test)
@@ -521,33 +798,75 @@ def build_and_evaluate_model(X_train: pd.DataFrame, y_train: np.ndarray,
     plt.show()
 
 
-def main():
-    logger.info("Программа запущена.")
 
-    # 1. Загрузка данных
+def run_with_training_model():
+    # 1. Загрузка и предобработка данных
     df_raw = load_data()
-
-    # 2. Визуальный анализ (до любых преобразований)
-    visual_data_analysis(df_raw.copy())
-
-    # 3. Предобработка данных
     df = data_processing(df_raw, rating_threshold=RATING_THRESHOLD)
-    logger.info("[37%] Признаки и целевая переменная подготовлены.")
-
-    # 4. Разделение на X и y
-    y = df["rating"].values
-    X = df.drop(columns="rating")
-    logger.info("[38%] Данные разделены на обучающую и тестовую выборки.")
-
-    # 5. Разделение на обучающую и тестовую выборки
+    y = df['rating'].values
+    X = df.drop(columns='rating')
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
+    # 2. Собираем базовый конвейер (логистика без обучения)
+    base_pipeline = ImbPipeline([
+        ('preprocessor', preprocessor),
+        ('smote', BorderlineSMOTE(random_state=RANDOM_STATE)),
+        ('classifier', LogisticRegression(max_iter=1000, tol=1e-3, random_state=RANDOM_STATE))
+    ])
+    # 3. Обучение через GridSearchCV
+    grid = GridSearchCV(
+        estimator=base_pipeline,
+        param_grid=LOGREG_PARAMS,
+        scoring=f2_scorer,
+        cv=5,
+        n_jobs=-1,
+        verbose=1
+    )
+    logger.info("Starting training with GridSearchCV (F2)...")
+    grid.fit(X_train, y_train)
+    best_pipeline = grid.best_estimator_
+    # Сохраняем классификатор
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    joblib.dump(best_pipeline.named_steps['classifier'], MODEL_PATH)
+    logger.info("Trained and saved new classifier.")
+    # 4. Оцениваем
+    evaluate_pipeline(best_pipeline, X_train, y_train, X_test, y_test)
 
-    # 6. Обучение и оценка модели
-    build_and_evaluate_model(X_train, y_train, X_test, y_test)
 
-    logger.info("Программа завершена.")
+def main():
+    logger.info("Программа запущена.")
+    if IS_DOWLOADING:
+        run_with_downloaded_model()
+    else:
+        logger.info("Программа запущена.")
+
+        # 1. Загрузка данных
+        df_raw = load_data()
+
+        # 2. Визуальный анализ (до любых преобразований)
+        visual_data_analysis(df_raw.copy())
+
+        # 3. Предобработка данных
+        df = data_processing(df_raw, rating_threshold=RATING_THRESHOLD)
+        logger.info("[37%] Признаки и целевая переменная подготовлены.")
+
+        # 4. Разделение на X и y
+        y = df["rating"].values
+        X = df.drop(columns="rating")
+        logger.info("[38%] Данные разделены на обучающую и тестовую выборки.")
+
+        # 5. Разделение на обучающую и тестовую выборки
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
+        )
+
+        # 6. Обучение и оценка модели
+        build_and_evaluate_model(X_train, y_train, X_test, y_test)
+
+
+
+logger.info("Программа завершена.")
 
 
 def plot_f2_vs_threshold(y_true: np.ndarray, y_proba: np.ndarray, step: float = 0.01) -> None:

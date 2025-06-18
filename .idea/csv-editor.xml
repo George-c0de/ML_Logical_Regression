@@ -31,6 +31,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/Data/dataNew_2.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Data/dataNew_3.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Data/dataNew_4.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Data/dataset_rec.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/Data/score.csv">
           <value>
             <Attribute>
@@ -59,7 +87,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/a.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/ml_logical_regression/ml_logical_regression/End_score.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/ml_logical_regression/ml_logical_regression/metrics_log.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

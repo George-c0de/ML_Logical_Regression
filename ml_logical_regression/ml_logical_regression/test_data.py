@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 warnings.filterwarnings("ignore", message="Found unknown categories in columns.*")
 
 # Пути к артефактам
-MODEL_ARTIFACT_PATH = "models/logreg_model.pkl"  # ожидаем dict с ключами 'model' и 'threshold'
+MODEL_ARTIFACT_PATH = "models/logreg_model_0_4_0_1_ta_dataset_r.pkl"  # ожидаем dict с ключами 'model' и 'threshold'
 MLB_PATH            = "models/mlb.pkl"       # сохранённый MultiLabelBinarizer
 
 def load_data(path: str) -> pd.DataFrame:
